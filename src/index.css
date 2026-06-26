@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+
+@theme {
+  --color-ink: #141414;
+  --color-brand: #e2001a;
+  --color-brand-dark: #b80016;
+  --color-muted: #6b6b6b;
+  --color-line: #e4e4e7;
+  --color-page: #fafafa;
+  --color-surface: #ffffff;
+  --color-section: #f4f4f5;
+
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    margin: 0;
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+}
