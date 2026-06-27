@@ -25,13 +25,13 @@ export default function FloatingNav() {
             <img src="/logo-light.png" alt="idealofis" className="h-11 w-auto" />
           </Link>
 
-          <div className="hidden items-center gap-6 md:flex">
+          <div className="hidden items-center gap-6 lg:flex">
             {PAGES.map((p) => (
               <NavLink
                 key={p.path}
                 to={p.path}
                 className={({ isActive }) =>
-                  `text-sm font-medium transition-colors hover:text-ink ${
+                  `whitespace-nowrap text-sm font-medium transition-colors hover:text-ink ${
                     isActive ? 'text-brand' : 'text-ink/80'
                   }`
                 }
@@ -46,7 +46,7 @@ export default function FloatingNav() {
             aria-label="Menü"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="relative h-10 w-10 md:hidden"
+            className="relative h-10 w-10 lg:hidden"
           >
             {/* üst çizgi -> X'in 1. kolu */}
             <motion.span
@@ -88,7 +88,7 @@ export default function FloatingNav() {
         {open && (
           <motion.nav
             key="mobile-menu"
-            className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl md:hidden ${GLASS}`}
+            className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl lg:hidden ${GLASS}`}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8, transition: { duration: 0.25, delay: 0.5 } }}
