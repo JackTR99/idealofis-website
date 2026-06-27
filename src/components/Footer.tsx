@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PAGES } from '../data/pages'
+import { PAGES, LEGAL_PAGES } from '../data/pages'
 
 export default function Footer() {
   return (
@@ -26,8 +26,15 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-xs text-white/40">
-          © 2026 idealofis. Tüm hakları saklıdır.
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+          <span>© 2026 idealofis. Tüm hakları saklıdır.</span>
+          <nav className="flex items-center gap-5">
+            {LEGAL_PAGES.map((p) => (
+              <Link key={p.path} to={p.path} className="transition-colors hover:text-white">
+                {p.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

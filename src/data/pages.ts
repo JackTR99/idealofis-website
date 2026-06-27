@@ -16,3 +16,8 @@ export const PAGES: PageDef[] = [
   { path: '/sertifikasyonlar', label: 'Sertifikasyonlar', title: 'Sertifikasyonlar' },
   { path: '/iletisim', label: 'İletişim', title: 'İletişim' },
 ]
+
+export const LEGAL_PAGES: PageDef[] = [
+  { path: '/kvkk', label: 'KVKK', title: 'KVKK' },
+  { path: '/cerez-politikasi', label: 'Çerez Politikası', title: 'Çerez Politikası' },
+]

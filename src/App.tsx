@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import UnderConstruction from './pages/UnderConstruction'
-import { PAGES } from './data/pages'
+import { PAGES, LEGAL_PAGES } from './data/pages'
 
 function App() {
   return (
@@ -9,6 +9,13 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<UnderConstruction title="Anasayfa" home />} />
         {PAGES.map((p) => (
+          <Route
+            key={p.path}
+            path={p.path}
+            element={<UnderConstruction title={p.title} />}
+          />
+        ))}
+        {LEGAL_PAGES.map((p) => (
           <Route
             key={p.path}
             path={p.path}
