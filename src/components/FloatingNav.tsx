@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { PAGES } from '../data/pages'
 
@@ -13,6 +13,7 @@ const BAR_TR = { duration: 0.32, ease: 'easeInOut' } as const
 
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
+  const { pathname } = useLocation()
   const lineItems = PAGES.slice(0, 2) // çizgiden uzayarak oluşan ilk 2 buton
   const restItems = PAGES.slice(2) // sonradan beliren sayfalar
 
@@ -115,7 +116,9 @@ export default function FloatingNav() {
                     }}
                   >
                     <motion.span
-                      className="whitespace-nowrap px-4 text-sm font-medium text-ink"
+                      className={`whitespace-nowrap px-4 text-sm font-medium ${
+                        pathname === p.path ? 'text-brand' : 'text-ink'
+                      }`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1, transition: { delay: 0.18 + i * 0.16 + 0.24 } }}
                       exit={{ opacity: 0, transition: { duration: 0.1 } }}
