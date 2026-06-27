@@ -25,7 +25,7 @@ export default function FloatingNav() {
             <img src="/logo-light.png" alt="idealofis" className="h-11 w-auto" />
           </Link>
 
-          <div className="hidden items-center gap-6 lg:flex">
+          <div className="hidden flex-1 items-center justify-center gap-6 lg:flex">
             {PAGES.map((p) => (
               <NavLink
                 key={p.path}
