@@ -3,9 +3,9 @@ import { Link, NavLink } from 'react-router-dom'
 import { PAGES } from '../data/pages'
 
 const GLASS =
-  'overflow-hidden border border-[rgba(20,20,20,0.10)] bg-white/35 ' +
-  'shadow-[0_10px_34px_-10px_rgba(20,20,20,0.22),inset_0_1px_0_rgba(255,255,255,0.7)] ' +
-  'backdrop-blur-md backdrop-saturate-150'
+  'overflow-hidden border border-[rgba(20,20,20,0.08)] bg-white/18 ' +
+  'shadow-[0_12px_38px_-10px_rgba(20,20,20,0.22),inset_0_1px_0_rgba(255,255,255,0.85),inset_0_-1px_0_rgba(255,255,255,0.25)] ' +
+  'backdrop-blur-lg backdrop-saturate-150'
 
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
