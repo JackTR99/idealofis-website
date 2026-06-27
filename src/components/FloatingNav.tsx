@@ -102,7 +102,7 @@ export default function FloatingNav() {
                     animate={{
                       width: '100%',
                       height: 46,
-                      backgroundColor: 'rgba(20,20,20,0.04)',
+                      backgroundColor: 'rgba(20,20,20,0)',
                       borderRadius: 16,
                       transition: { duration: 0.42, ease: 'easeOut', delay: 0.18 + i * 0.16 },
                     }}
@@ -137,7 +137,7 @@ export default function FloatingNav() {
                     to={p.path}
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
-                      `flex h-[46px] items-center justify-center rounded-2xl bg-[rgba(20,20,20,0.04)] px-4 text-sm font-medium transition-colors hover:bg-[rgba(20,20,20,0.08)] ${
+                      `block rounded-2xl px-4 py-3 text-center text-sm font-medium transition-colors hover:bg-[rgba(20,20,20,0.05)] ${
                         isActive ? 'text-brand' : 'text-ink'
                       }`
                     }
