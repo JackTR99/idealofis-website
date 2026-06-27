@@ -90,7 +90,7 @@ export default function FloatingNav() {
             className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl md:hidden ${GLASS}`}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8, transition: { duration: 0.2, delay: 0.2 } }}
+            exit={{ opacity: 0, y: -8, transition: { duration: 0.25, delay: 0.5 } }}
             transition={{ duration: 0.25 }}
           >
             <div className="relative z-10 flex flex-col gap-1 p-2">
@@ -111,7 +111,7 @@ export default function FloatingNav() {
                       height: 3,
                       backgroundColor: 'rgba(20,20,20,1)',
                       borderRadius: 999,
-                      transition: { duration: 0.3, delay: (1 - i) * 0.08 },
+                      transition: { duration: 0.4, delay: 0.22 + (1 - i) * 0.1 },
                     }}
                   >
                     <motion.span
@@ -141,7 +141,7 @@ export default function FloatingNav() {
                     opacity: 0,
                     y: 8,
                     backgroundColor: 'rgba(20,20,20,0.05)',
-                    transition: { duration: 0.15, delay: (restItems.length - 1 - i) * 0.05 },
+                    transition: { duration: 0.35, delay: (restItems.length - 1 - i) * 0.07 },
                   }}
                 >
                   <NavLink
