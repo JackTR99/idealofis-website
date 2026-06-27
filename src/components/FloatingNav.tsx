@@ -97,12 +97,12 @@ export default function FloatingNav() {
               {lineItems.map((p, i) => (
                 <Link key={p.path} to={p.path} onClick={() => setOpen(false)} className="block">
                   <motion.div
-                    className="mx-auto flex items-center overflow-hidden"
+                    className="mx-auto flex items-center justify-center overflow-hidden"
                     initial={{ width: 28, height: 3, backgroundColor: 'rgba(20,20,20,1)', borderRadius: 999 }}
                     animate={{
                       width: '100%',
                       height: 46,
-                      backgroundColor: 'rgba(20,20,20,0.04)',
+                      backgroundColor: 'rgba(20,20,20,0)',
                       borderRadius: 14,
                       transition: { duration: 0.42, ease: 'easeOut', delay: 0.18 + i * 0.16 },
                     }}
@@ -137,7 +137,7 @@ export default function FloatingNav() {
                     to={p.path}
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
-                      `block rounded-2xl px-4 py-3 text-sm font-medium transition-colors hover:bg-[rgba(20,20,20,0.05)] ${
+                      `block rounded-2xl px-4 py-3 text-center text-sm font-medium transition-colors hover:bg-[rgba(20,20,20,0.05)] ${
                         isActive ? 'text-brand' : 'text-ink'
                       }`
                     }
