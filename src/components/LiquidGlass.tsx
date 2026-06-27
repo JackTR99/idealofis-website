@@ -6,38 +6,26 @@ const FRAG = `precision highp float;
 uniform float uTime;
 uniform vec2 uRes;
 
-float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float noise(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
-             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-}
-float fbm(vec2 p){
-  float v = 0.0, a = 0.5;
-  for(int i = 0; i < 5; i++){ v += a * noise(p); p *= 2.0; a *= 0.5; }
-  return v;
-}
-
 void main(){
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 asp = vec2(uRes.x / uRes.y, 1.0);
-  float t = uTime * 0.05;
 
-  vec2 q = vec2(fbm(uv * asp * 3.0 + t), fbm(uv * asp * 3.0 - t + 5.2));
-  float caustic = fbm(uv * asp * 4.0 + q * 1.6 + t);
-  caustic = smoothstep(0.26, 0.9, caustic);
+  // gentle liquid wobble — smooth waves, not turbulent smoke
+  float wob = sin(uv.x * 6.0 + uTime * 0.6) * 0.020
+            + sin(uv.x * 3.0 - uTime * 0.35) * 0.035;
+  float x = uv.x + wob;
 
-  float sweep = sin((uv.x + uv.y * 0.6) * 3.14159 - uTime * 0.45) * 0.5 + 0.5;
-  sweep = pow(sweep, 5.0);
+  // clean moving specular glints (glass light streaks)
+  float a = sin((x * 2.2 + uv.y * 0.5) * 3.14159 - uTime * 0.65);
+  float glint1 = pow(max(a, 0.0), 7.0);
+  float b = sin((x * 1.25 - uv.y * 0.35) * 3.14159 - uTime * 0.40 + 2.0);
+  float glint2 = pow(max(b, 0.0), 16.0);
 
-  float topLight = smoothstep(1.0, 0.0, uv.y) * 0.24;
-  float rim = smoothstep(0.90, 1.0, uv.y) * 0.28;
+  // edge highlights for the glass rim (top + bottom)
+  float topLight = smoothstep(1.0, 0.3, uv.y) * 0.06;
+  float rim = (smoothstep(0.85, 1.0, uv.y) + smoothstep(0.15, 0.0, uv.y)) * 0.10;
 
-  float sheen = caustic * 0.28 + sweep * 0.52 + topLight + rim;
-  vec3 col = mix(vec3(1.0), vec3(1.0, 0.84, 0.87), sweep * 0.45 + caustic * 0.25);
-
-  gl_FragColor = vec4(col, clamp(sheen, 0.0, 0.85));
+  float sheen = glint1 * 0.14 + glint2 * 0.24 + topLight + rim;
+  gl_FragColor = vec4(vec3(1.0), clamp(sheen, 0.0, 0.5));
 }`
 
 export default function LiquidGlass({ className = '' }: { className?: string }) {
