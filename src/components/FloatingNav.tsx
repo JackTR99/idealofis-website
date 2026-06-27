@@ -3,8 +3,8 @@ import { Link, NavLink } from 'react-router-dom'
 import { PAGES } from '../data/pages'
 
 const GLASS =
-  'overflow-hidden border border-white/15 bg-[rgba(18,18,18,0.30)] ' +
-  'shadow-[0_12px_40px_-8px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] ' +
+  'overflow-hidden border border-[rgba(20,20,20,0.10)] bg-white/35 ' +
+  'shadow-[0_10px_34px_-10px_rgba(20,20,20,0.22),inset_0_1px_0_rgba(255,255,255,0.7)] ' +
   'backdrop-blur-md backdrop-saturate-150'
 
 export default function FloatingNav() {
@@ -15,7 +15,7 @@ export default function FloatingNav() {
       <nav className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS}`}>
         <div className="relative z-10 flex h-14 items-center justify-between gap-4 pl-5 pr-3">
           <Link to="/" onClick={() => setOpen(false)} className="flex items-center">
-            <img src="/logo-white.png" alt="idealofis" className="h-10 w-auto" />
+            <img src="/logo-light.png" alt="idealofis" className="h-11 w-auto" />
           </Link>
 
           <div className="hidden items-center gap-6 md:flex">
@@ -24,8 +24,8 @@ export default function FloatingNav() {
                 key={p.path}
                 to={p.path}
                 className={({ isActive }) =>
-                  `text-sm font-medium transition-colors hover:text-white ${
-                    isActive ? 'text-brand' : 'text-white/80'
+                  `text-sm font-medium transition-colors hover:text-ink ${
+                    isActive ? 'text-brand' : 'text-ink/80'
                   }`
                 }
               >
@@ -39,7 +39,7 @@ export default function FloatingNav() {
             aria-label="Menü"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="text-white md:hidden"
+            className="text-ink md:hidden"
           >
             <svg
               width="26"
@@ -73,8 +73,8 @@ export default function FloatingNav() {
                 to={p.path}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `rounded-2xl px-4 py-3 text-sm font-medium transition-colors hover:bg-white/10 ${
-                    isActive ? 'text-brand' : 'text-white/90'
+                  `rounded-2xl px-4 py-3 text-sm font-medium transition-colors hover:bg-[rgba(20,20,20,0.05)] ${
+                    isActive ? 'text-brand' : 'text-ink'
                   }`
                 }
               >
