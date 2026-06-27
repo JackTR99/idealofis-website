@@ -129,9 +129,20 @@ export default function FloatingNav() {
               {restItems.map((p, i) => (
                 <motion.div
                   key={p.path}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0, transition: { delay: 0.55 + i * 0.08 } }}
-                  exit={{ opacity: 0, y: 8, transition: { duration: 0.15, delay: (restItems.length - 1 - i) * 0.05 } }}
+                  className="overflow-hidden rounded-2xl"
+                  initial={{ opacity: 0, y: 8, backgroundColor: 'rgba(20,20,20,0.05)' }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    backgroundColor: 'rgba(20,20,20,0)',
+                    transition: { duration: 0.45, delay: 0.55 + i * 0.08 },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    y: 8,
+                    backgroundColor: 'rgba(20,20,20,0.05)',
+                    transition: { duration: 0.15, delay: (restItems.length - 1 - i) * 0.05 },
+                  }}
                 >
                   <NavLink
                     to={p.path}
