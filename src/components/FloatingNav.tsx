@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { PAGES } from '../data/pages'
-import LiquidGlass from './LiquidGlass'
 
 const GLASS =
   'overflow-hidden border border-white/15 bg-[rgba(18,18,18,0.30)] ' +
@@ -14,10 +13,9 @@ export default function FloatingNav() {
   return (
     <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4">
       <nav className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS}`}>
-        <LiquidGlass className="pointer-events-none absolute inset-0 h-full w-full" />
         <div className="relative z-10 flex h-14 items-center justify-between gap-4 pl-5 pr-3">
           <Link to="/" onClick={() => setOpen(false)} className="flex items-center">
-            <img src="/logo-white.png" alt="idealofis" className="h-7 w-auto" />
+            <img src="/logo-white.png" alt="idealofis" className="h-10 w-auto" />
           </Link>
 
           <div className="hidden items-center gap-6 md:flex">
@@ -68,7 +66,6 @@ export default function FloatingNav() {
 
       {open && (
         <nav className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl md:hidden ${GLASS}`}>
-          <LiquidGlass className="pointer-events-none absolute inset-0 h-full w-full" />
           <div className="relative z-10 flex flex-col p-2">
             {PAGES.map((p) => (
               <NavLink
