@@ -219,3 +219,87 @@
     opacity: 1;
   }
 }
+
+/* ---- Mobil menü koreografisi: açılış ve tam tersi kapanış ---- */
+
+/* Öğeler: açılışta daireden tam pill'e; kapanışta tam pill'den daireye */
+@keyframes menu-pill-in {
+  0% { width: 2.75rem; opacity: 0; transform: scale(0.4); }
+  35% { width: 2.75rem; opacity: 1; transform: scale(1); }
+  100% { width: 100%; opacity: 1; transform: scale(1); }
+}
+@keyframes menu-pill-out {
+  0% { width: 100%; opacity: 1; transform: scale(1); }
+  60% { width: 2.75rem; opacity: 1; transform: scale(1); }
+  100% { width: 2.75rem; opacity: 0; transform: scale(0.4); }
+}
+@keyframes menu-label-in { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes menu-label-out { 0% { opacity: 1; } 45%, 100% { opacity: 0; } }
+@keyframes menu-card-in { 0% { opacity: 0; transform: translateY(-6px) scale(0.98); } 100% { opacity: 1; transform: none; } }
+@keyframes menu-card-out { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+
+/* Hamburger çizgileri: açılışta aşağı düşer, kapanışta geri yükselir */
+@keyframes ham-drop { 0% { transform: translateY(0); opacity: 1; } 55% { opacity: 1; } 100% { transform: translateY(0.85rem); opacity: 0; } }
+@keyframes ham-rise { 0% { transform: translateY(0.85rem); opacity: 0; } 45% { opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+/* Çarpı: yukarıdan düz bir çizgi iner, sonra dönerek X olur (kapanışta tersi) */
+@keyframes x-a-in {
+  0% { transform: translate(-50%, -50%) translateY(-0.9rem) rotate(0deg); opacity: 0; }
+  45% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translateY(0) rotate(45deg); opacity: 1; }
+}
+@keyframes x-b-in {
+  0% { transform: translate(-50%, -50%) translateY(-0.9rem) rotate(0deg); opacity: 0; }
+  45% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translateY(0) rotate(-45deg); opacity: 1; }
+}
+@keyframes x-a-out {
+  0% { transform: translate(-50%, -50%) translateY(0) rotate(45deg); opacity: 1; }
+  55% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translateY(-0.9rem) rotate(0deg); opacity: 0; }
+}
+@keyframes x-b-out {
+  0% { transform: translate(-50%, -50%) translateY(0) rotate(-45deg); opacity: 1; }
+  55% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translateY(-0.9rem) rotate(0deg); opacity: 0; }
+}
+
+.menu-pill-in { animation: menu-pill-in 0.5s ease-in-out both; }
+.menu-pill-out { animation: menu-pill-out 0.45s ease-in-out both; }
+.menu-label-in { animation: menu-label-in 0.55s ease-in-out both; }
+.menu-label-out { animation: menu-label-out 0.3s ease-in-out both; }
+.menu-card-in { animation: menu-card-in 0.3s ease-in-out both; }
+.menu-card-out { animation: menu-card-out 0.3s ease-in-out both; }
+
+/* çizgi ölçüleri bizim navbar'a göre (w-6, 2.5px) — hareket İrem koreografisi */
+.ham-bar { height: 2.5px; width: 1.5rem; border-radius: 9999px; background-color: currentColor; }
+.ham-bar--drop { animation: ham-drop 0.28s ease-in-out forwards; }
+.ham-bar--rise { animation: ham-rise 0.3s ease-in-out both; }
+
+.x-stroke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.35rem;
+  height: 2.5px;
+  border-radius: 9999px;
+  background-color: currentColor;
+}
+.x-stroke-a-in { animation: x-a-in 0.45s ease-in-out both; }
+.x-stroke-b-in { animation: x-b-in 0.45s ease-in-out both; }
+.x-stroke-a-out { animation: x-a-out 0.4s ease-in-out both; }
+.x-stroke-b-out { animation: x-b-out 0.4s ease-in-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-pill-in, .menu-pill-out,
+  .menu-label-in, .menu-label-out,
+  .menu-card-in, .menu-card-out,
+  .ham-bar--rise,
+  .x-stroke-a-in, .x-stroke-b-in, .x-stroke-a-out, .x-stroke-b-out {
+    animation: none;
+    opacity: 1;
+  }
+  .menu-pill-in { width: 100%; }
+  .menu-pill-out, .ham-bar--drop, .x-stroke-a-out, .x-stroke-b-out { display: none; }
+  .x-stroke-a-in { transform: translate(-50%, -50%) rotate(45deg); }
+  .x-stroke-b-in { transform: translate(-50%, -50%) rotate(-45deg); }
+}

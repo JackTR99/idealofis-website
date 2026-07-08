@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
 import { PAGES } from '../data/pages'
 import LensGlass from './LensGlass'
 import { useIntro } from './IntroContext'
@@ -11,15 +10,39 @@ const GLASS =
   'shadow-[0_24px_60px_rgba(0,0,0,0.09),0_10px_30px_-12px_rgba(20,20,20,0.18),inset_0_1px_0_rgba(255,255,255,0.5)] ' +
   'backdrop-blur-lg backdrop-saturate-150'
 
-const BAR = 'absolute left-1/2 top-1/2 h-[2.5px] w-6 rounded-full bg-current'
-const BAR_TR = { duration: 0.32, ease: 'easeInOut' } as const
-
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
+  const [closing, setClosing] = useState(false)
+  const [slideX, setSlideX] = useState(0) // hamburger açılırken barın ortasına kayar
+  const barRef = useRef<HTMLElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
   const { pathname } = useLocation()
+
+  const openMenu = () => {
+    const bar = barRef.current?.getBoundingClientRect()
+    const btn = btnRef.current?.getBoundingClientRect()
+    if (bar && btn) {
+      setSlideX(bar.left + bar.width / 2 - (btn.left + btn.width / 2))
+    }
+    setOpen(true)
+  }
+
+  const closeMenu = () => {
+    if (closing) return
+    setClosing(true)
+    window.setTimeout(() => setSlideX(0), 780)
+    window.setTimeout(() => {
+      setOpen(false)
+      setClosing(false)
+    }, 920)
+  }
+
+  const toggleMenu = () => {
+    if (closing) return
+    if (open) closeMenu()
+    else openMenu()
+  }
   const { introActive } = useIntro()
-  const lineItems = PAGES.slice(0, 2) // çizgiden uzayarak oluşan ilk 2 buton
-  const restItems = PAGES.slice(2) // sonradan beliren sayfalar
 
   // A: navbar koyu hero'nun üstündeyken içerik beyaza döner
   const [onHero, setOnHero] = useState(true)
@@ -45,9 +68,9 @@ export default function FloatingNav() {
   const textShadow = onHero ? '0 1px 10px rgba(0,0,0,0.4)' : '0 1px 6px rgba(255,255,255,0.6)'
   // mobil menü rengi: hero üstünde beyaz, açık zeminde koyu (renk uyumu + okunurluk)
   const menuText = onHero ? 'text-white' : 'text-ink'
-  const menuHover = onHero ? 'hover:bg-white/10' : 'hover:bg-[rgba(20,20,20,0.05)]'
-  const menuLine = onHero ? 'rgba(255,255,255,0.92)' : 'rgba(20,20,20,1)'
-  const menuLineClear = onHero ? 'rgba(255,255,255,0)' : 'rgba(20,20,20,0)'
+  const menuHover = onHero ? 'hover:bg-white/15' : 'hover:bg-[rgba(20,20,20,0.09)]'
+  const menuPill = onHero ? 'bg-white/10' : 'bg-[rgba(20,20,20,0.05)]'
+  const lastIndex = PAGES.length - 1
 
   return (
     <div
@@ -58,7 +81,7 @@ export default function FloatingNav() {
         transition: 'transform 0.75s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease',
       }}
     >
-      <nav className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS}`}>
+      <nav ref={barRef} className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS}`}>
         <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />
         {/* iç parlama: sol-üst aydınlık, sağ-alt koyu → cam hacmi hissi */}
         <div
@@ -84,7 +107,16 @@ export default function FloatingNav() {
           }}
         />
         <div className="relative z-10 flex h-[3.125rem] items-center justify-between gap-4 pl-7 pr-3">
-          <Link to="/" onClick={() => setOpen(false)} className="flex items-center lg:mr-8">
+          <Link
+            to="/"
+            onClick={() => open && closeMenu()}
+            style={{
+              opacity: slideX !== 0 ? 0 : 1,
+              pointerEvents: slideX !== 0 ? 'none' : 'auto',
+              transition: 'opacity 0.25s ease-in-out',
+            }}
+            className="flex items-center lg:mr-8"
+          >
             <span className="relative inline-flex h-[2.8rem] items-center" style={{ filter: logoShadow }}>
               <img
                 src="/logo-light.png"
@@ -122,131 +154,82 @@ export default function FloatingNav() {
           </div>
 
           <button
+            ref={btnRef}
             type="button"
-            aria-label="Menü"
+            aria-label="Menüyü aç/kapat"
             aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            style={{ filter: logoShadow }}
-            className={`relative h-10 w-10 transition-colors lg:hidden ${onHero ? 'text-white' : 'text-ink'}`}
+            onClick={toggleMenu}
+            style={{
+              filter: logoShadow,
+              transform: `translateX(${slideX}px)`,
+              transition:
+                'transform 0.35s ease-in-out, color 0.3s ease, filter 0.3s ease',
+              transitionDelay: '0.15s',
+            }}
+            className={`relative h-10 w-10 lg:hidden ${onHero ? 'text-white' : 'text-ink'}`}
           >
-            {/* üst çizgi -> X'in 1. kolu */}
-            <motion.span
-              className={BAR}
-              initial={false}
-              animate={open ? { x: '-50%', y: 0, rotate: 45 } : { x: '-50%', y: -7, rotate: 0 }}
-              transition={BAR_TR}
-            />
-            {/* X'in 2. kolu (çapraz tamamlanır) */}
-            <motion.span
-              className={BAR}
-              initial={false}
-              animate={
-                open
-                  ? { x: '-50%', y: 0, rotate: -45, opacity: 1, scaleX: 1 }
-                  : { x: '-50%', y: 0, rotate: 0, opacity: 0, scaleX: 0.2 }
-              }
-              transition={{ ...BAR_TR, delay: open ? 0.12 : 0 }}
-            />
-            {/* orta çizgi -> aşağı düşer */}
-            <motion.span
-              className={BAR}
-              initial={false}
-              animate={open ? { x: '-50%', y: 16, opacity: 0 } : { x: '-50%', y: 0, opacity: 1 }}
-              transition={BAR_TR}
-            />
-            {/* alt çizgi -> aşağı düşer */}
-            <motion.span
-              className={BAR}
-              initial={false}
-              animate={open ? { x: '-50%', y: 20, opacity: 0 } : { x: '-50%', y: 7, opacity: 1 }}
-              transition={{ ...BAR_TR, delay: 0.05 }}
-            />
+            <span className="relative mx-auto flex size-6 flex-col items-center justify-center gap-[4px]">
+              {/* çizgiler: açılışta tek tek aşağı düşer, kapanışta geri yükselir */}
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={`ham-bar ${open && !closing ? 'ham-bar--drop' : ''} ${closing ? 'ham-bar--rise' : ''}`}
+                  style={{ animationDelay: closing ? `${420 + i * 30}ms` : `${300 + i * 35}ms` }}
+                />
+              ))}
+              {/* çarpı: yukarıdan iner, dönerek X olur (kapanışta tersi) */}
+              {open && (
+                <>
+                  <span
+                    className={`x-stroke ${closing ? 'x-stroke-a-out' : 'x-stroke-a-in'}`}
+                    style={{ animationDelay: closing ? '0ms' : '650ms' }}
+                  />
+                  <span
+                    className={`x-stroke ${closing ? 'x-stroke-b-out' : 'x-stroke-b-in'}`}
+                    style={{ animationDelay: closing ? '0ms' : '650ms' }}
+                  />
+                </>
+              )}
+            </span>
           </button>
         </div>
       </nav>
 
-      <AnimatePresence>
-        {open && (
-          <motion.nav
-            key="mobile-menu"
-            className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl lg:hidden ${GLASS}`}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8, transition: { duration: 0.25, delay: 0.5 } }}
-            transition={{ duration: 0.25 }}
-          >
-            <div className="relative z-10 flex flex-col gap-1 p-2">
-              {lineItems.map((p, i) => (
-                <Link key={p.path} to={p.path} onClick={() => setOpen(false)} className="block">
-                  <motion.div
-                    className="mx-auto flex items-center justify-center overflow-hidden"
-                    initial={{ width: 28, height: 3, backgroundColor: menuLine, borderRadius: 999 }}
-                    animate={{
-                      width: '100%',
-                      height: 46,
-                      backgroundColor: menuLineClear,
-                      borderRadius: 16,
-                      transition: { duration: 0.42, ease: 'easeOut', delay: 0.18 + i * 0.16 },
-                    }}
-                    exit={{
-                      width: 28,
-                      height: 3,
-                      backgroundColor: menuLine,
-                      borderRadius: 999,
-                      transition: { duration: 0.4, delay: 0.22 + (1 - i) * 0.1 },
-                    }}
-                  >
-                    <motion.span
-                      style={{ textShadow }}
-                      className={`whitespace-nowrap px-4 text-sm font-[450] ${
-                        pathname === p.path ? 'text-brand' : menuText
-                      }`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1, transition: { delay: 0.18 + i * 0.16 + 0.24 } }}
-                      exit={{ opacity: 0, transition: { duration: 0.1 } }}
-                    >
-                      {p.label}
-                    </motion.span>
-                  </motion.div>
-                </Link>
-              ))}
-
-              {restItems.map((p, i) => (
-                <motion.div
-                  key={p.path}
-                  className="overflow-hidden rounded-2xl"
-                  initial={{ opacity: 0, y: 8, backgroundColor: 'rgba(20,20,20,0.05)' }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    backgroundColor: 'rgba(20,20,20,0)',
-                    transition: { duration: 0.45, delay: 0.55 + i * 0.08 },
-                  }}
-                  exit={{
-                    opacity: 0,
-                    y: 8,
-                    backgroundColor: 'rgba(20,20,20,0.05)',
-                    transition: { duration: 0.35, delay: (restItems.length - 1 - i) * 0.07 },
+      {open && (
+        <nav
+          className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl lg:hidden ${GLASS} ${
+            closing ? 'menu-card-out' : 'menu-card-in'
+          }`}
+          style={{ animationDelay: closing ? '560ms' : '600ms' }}
+        >
+          <div className="relative z-10 flex flex-col items-center gap-1.5 p-2">
+            {PAGES.map((p, i) => (
+              <Link
+                key={p.path}
+                to={p.path}
+                onClick={closeMenu}
+                aria-current={pathname === p.path ? 'page' : undefined}
+                style={{ animationDelay: closing ? `${(lastIndex - i) * 55}ms` : `${580 + i * 60}ms` }}
+                className={`flex h-11 w-full items-center justify-center overflow-hidden rounded-full text-sm font-[450] transition-colors ${menuPill} ${menuHover} ${
+                  closing ? 'menu-pill-out' : 'menu-pill-in'
+                } ${pathname === p.path ? 'text-brand' : menuText}`}
+              >
+                <span
+                  className={`whitespace-nowrap ${closing ? 'menu-label-out' : 'menu-label-in'}`}
+                  style={{
+                    textShadow,
+                    animationDelay: closing
+                      ? `${(lastIndex - i) * 55}ms`
+                      : `${580 + i * 60 + 150}ms`,
                   }}
                 >
-                  <NavLink
-                    to={p.path}
-                    onClick={() => setOpen(false)}
-                    style={{ textShadow }}
-                    className={({ isActive }) =>
-                      `block rounded-2xl px-4 py-3 text-center text-sm font-[450] transition-colors ${menuHover} ${
-                        isActive ? 'text-brand' : menuText
-                      }`
-                    }
-                  >
-                    {p.label}
-                  </NavLink>
-                </motion.div>
-              ))}
-            </div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
+                  {p.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </div>
   )
 }
