@@ -1,13 +1,14 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import UnderConstruction from './pages/UnderConstruction'
+import Home from './pages/Home'
 import { PAGES, LEGAL_PAGES } from './data/pages'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<UnderConstruction title="Anasayfa" home />} />
+        <Route index element={<Home />} />
         {PAGES.map((p) => (
           <Route
             key={p.path}
