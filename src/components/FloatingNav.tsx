@@ -11,6 +11,13 @@ const GLASS =
 // KOD 2 (Safari/iPhone ve diğerleri): klasik buğulu cam — orijinal navbar
 const FROST = 'backdrop-blur-lg backdrop-saturate-150'
 
+// KOD 1 su hissi — hepsi algı eşiğinin ALTINDA kalacak dozda, tek tek kapatılabilir
+const SU = {
+  dalga: true, // haritaya düşük frekanslı dalga (bükülmenin ~%4'ü, yalnız kenar bandı)
+  akis: true, // dalgaların ~50 sn'de bir tam tur atan akışı
+  parlama: true, // kenar parlamasında %3'lük çok yavaş nefes
+}
+
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
@@ -67,6 +74,7 @@ export default function FloatingNav() {
     // gradyan sönüm: kenarda 1 → merkezde 0, iki uçta sıfır eğimle (çizgisiz geçiş)
     const smootherstep = (v: number) =>
       v <= 0 ? 0 : v >= 1 ? 1 : v * v * v * (v * (v * 6 - 15) + 10)
+    let phase = 0
     const draw = () => {
       const W = Math.max(2, Math.round(bar.clientWidth))
       const H = Math.max(2, Math.round(bar.clientHeight))
@@ -108,6 +116,15 @@ export default function FloatingNav() {
             // kenarlarda düz çizgi/leke oluşmaz
             dx = -(gx / len) * bend
             dy = -(gy / len) * bend
+            // su dalgası: bükülmenin %4'ü, yalnız bükülen bantta (merkez dümdüz)
+            if (SU.dalga) {
+              const w =
+                (Math.sin(x * 0.024 + phase) * Math.sin(y * 0.055 + phase * 0.7) +
+                  Math.sin((x + y) * 0.014 - phase * 0.5)) /
+                2
+              dx += w * 0.04 * bend
+              dy += w * 0.04 * bend
+            }
           }
           px.data[i] = Math.round(127.5 + dx * 127.5)
           px.data[i + 1] = Math.round(127.5 + dy * 127.5)
@@ -134,7 +151,20 @@ export default function FloatingNav() {
     draw()
     const ro = new ResizeObserver(draw)
     ro.observe(bar)
-    return () => ro.disconnect()
+    // akış: ~50 sn'de bir tam tur — göz sabit bakışta yakalayamaz, cam "canlı" kalır
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const iv =
+      SU.dalga && SU.akis && !reduce
+        ? window.setInterval(() => {
+            if (document.hidden) return
+            phase += 0.019 // 150ms * 0.019 ≈ 2π / 50sn
+            draw()
+          }, 150)
+        : 0
+    return () => {
+      ro.disconnect()
+      if (iv) window.clearInterval(iv)
+    }
   }, [refract])
 
   // A: navbar koyu hero'nun üstündeyken içerik beyaza döner
@@ -219,7 +249,9 @@ export default function FloatingNav() {
         {!refract && <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />}
         {/* iç parlama: sol-üst aydınlık, sağ-alt koyu → cam hacmi hissi */}
         <div
-          className="pointer-events-none absolute inset-0 rounded-full"
+          className={`pointer-events-none absolute inset-0 rounded-full ${
+            refract && SU.parlama ? 'glass-breath' : ''
+          }`}
           style={{
             // üst kenar highlight + yatayda homojen cam (sağ güçlü, sol hafif)
             background:

@@ -220,6 +220,25 @@
   }
 }
 
+/* cam nefesi (KOD 1 su hissi): kenar parlaması %3 aralığında çok yavaş soluk alır */
+@keyframes glassBreath {
+  0%,
+  100% {
+    opacity: 0.97;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.glass-breath {
+  animation: glassBreath 24s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-breath {
+    animation: none;
+  }
+}
+
 /* ---- Mobil menü koreografisi: açılış ve tam tersi kapanış ---- */
 
 /* Öğeler: açılışta daireden tam pill'e; kapanışta tam pill'den daireye */
