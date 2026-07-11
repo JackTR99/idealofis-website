@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
+import { paintStrip } from './paintStrip'
 
 /**
- * Kubbe (dome) pill mercek: sayfadaki [data-glass-bg] görselinin navbar'ın
- * altına düşen dilimini WebGL ile örnekleyip dışa bombeli cam gibi büker.
- * Görselle çakışma bittiğinde (scroll) efekt zarifçe kaybolur, altta
- * backdrop-blur cam kalır. Safari dahil her yerde çalışır.
+ * Kubbe (dome) pill mercek — KOD 2 (Safari/iPhone).
+ * Barın altındaki şerit, ressam (paintStrip) tarafından canlı DOM'dan okunup
+ * tuvale boyanır; bu doku WebGL ile dışa bombeli cam gibi bükülür. Böylece
+ * mercek yalnız hero görselini değil, SİTENİN HER YERİNDE arkasındakini büker.
  */
 
 const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`
@@ -14,8 +15,6 @@ uniform sampler2D uTex;
 uniform vec2 uRes;
 uniform vec2 uUvOff;
 uniform vec2 uUvScale;
-uniform vec2 uHeroSpanX;   // hero rect: left, width (CSS px)
-uniform vec2 uCanvasSpanX; // canvas rect: left, width (CSS px)
 
 float sdPill(vec2 q, vec2 h, float r){
   vec2 d = abs(q) - (h - vec2(r));
@@ -48,7 +47,6 @@ void main(){
 
   // dagilma (defocus): kirilan nokta etrafinda dairesel 9 ornek;
   // yaricap bukumle buyur -> kenarda metin erir, merkez jilet net.
-  // renk sacilimi dagilmanin icine islenir (radyal bilesene gore agirlik).
   float blurPx = bend * uRes.y * 0.18;
   vec3 acc = vec3(0.0);
   vec3 wsum = vec3(0.0);
@@ -64,16 +62,11 @@ void main(){
     wsum += w;
   }
   vec3 col = acc / wsum;
-
-  // hero'daki koyu degrade katmanin aynisi (from-ink/85 via-ink/60 to-ink/30)
-  float pageX = uCanvasSpanX.x + nPos.x * uCanvasSpanX.y;
-  float gx = clamp((pageX - uHeroSpanX.x) / max(uHeroSpanX.y, 1.0), 0.0, 1.0);
-  float ovl = gx < 0.5 ? mix(0.85, 0.60, gx * 2.0) : mix(0.60, 0.30, (gx - 0.5) * 2.0);
-  col = mix(col, vec3(0.078), ovl * 0.72);         // cam isigi toplar: sahneden bir tik aydinlik
+  // koyu sahne katmani YOK: ressam gercek katmanlari (hero degradesi dahil) boyuyor
 
   col = mix(col, vec3(1.0), 0.03);                  // cam tonu
 
-  // kubbe ustunden her yone yayilan isik (onceki comert parlaklik)
+  // kubbe ustunden her yone yayilan isik
   float topness = clamp(-q.y / h.y, 0.0, 1.0);
   float rim = omt * omt * omt;
   col += rim * (0.26 * topness + 0.05);
@@ -82,10 +75,7 @@ void main(){
   gl_FragColor = vec4(col, 0.80 * aa);
 }`
 
-function parsePercent(v: string, fallback: number): number {
-  const m = v.match(/([\d.]+)%/)
-  return m ? parseFloat(m[1]) / 100 : fallback
-}
+const MARGIN = 48 // bükülme payı: pill dışına taşan örnekleme için şerit marjı
 
 export default function LensGlass({ className = '' }: { className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -131,70 +121,50 @@ export default function LensGlass({ className = '' }: { className?: string }) {
     const uRes = gl.getUniformLocation(prog, 'uRes')
     const uUvOff = gl.getUniformLocation(prog, 'uUvOff')
     const uUvScale = gl.getUniformLocation(prog, 'uUvScale')
-    const uHeroSpanX = gl.getUniformLocation(prog, 'uHeroSpanX')
-    const uCanvasSpanX = gl.getUniformLocation(prog, 'uCanvasSpanX')
     gl.clearColor(0, 0, 0, 0)
 
-    // ---- doku (hero görseli) ----
-    let tex: WebGLTexture | null = null
-    let texSrc = ''
-    let texW = 0
-    let texH = 0
-    const loadTexture = (src: string) => {
-      texSrc = src
-      const im = new Image()
-      im.crossOrigin = 'anonymous'
-      im.onload = () => {
-        if (texSrc !== src || gl.isContextLost()) return
-        tex = gl.createTexture()
-        gl.bindTexture(gl.TEXTURE_2D, tex)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-        texW = im.naturalWidth
-        texH = im.naturalHeight
-        draw()
-      }
-      im.src = src
-    }
+    // ---- doku: ressamın boyadığı canlı şerit ----
+    const strip = document.createElement('canvas')
+    const sctx = strip.getContext('2d')
+    if (!sctx) return
+    const tex = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, tex)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 
     const draw = () => {
       if (gl.isContextLost()) return
-      const bg = document.querySelector<HTMLImageElement>('[data-glass-bg]')
-      if (!bg || !bg.currentSrc) {
-        canvas.style.opacity = '0'
-        return
-      }
-      if (bg.currentSrc !== texSrc) loadTexture(bg.currentSrc)
-      if (!tex || !texW || !texH) {
-        canvas.style.opacity = '0'
-        return
-      }
-
       const C = canvas.getBoundingClientRect()
-      const R = bg.getBoundingClientRect()
       if (C.width < 2 || C.height < 2) return
 
-      // dikey çakışma → efektin görünürlüğü
-      const inter = Math.min(C.bottom, R.bottom) - Math.max(C.top, R.top)
-      const frac = Math.max(0, Math.min(1, inter / C.height))
-      canvas.style.opacity = String(frac)
-      if (frac <= 0) return
-
-      // object-fit: cover + object-position eşlemesi
-      const cs = getComputedStyle(bg)
-      const pos = (cs.objectPosition || '50% 50%').split(' ')
-      const px = parsePercent(pos[0] || '', 0.5)
-      const py = parsePercent(pos[1] || '', 0.5)
-      const scale = Math.max(R.width / texW, R.height / texH)
-      const dispW = texW * scale
-      const dispH = texH * scale
-      const originX = R.left + (R.width - dispW) * px
-      const originY = R.top + (R.height - dispH) * py
-
+      // 1) şeridi boya (bar + bükülme payı)
+      const region = {
+        left: C.left - MARGIN,
+        top: C.top - MARGIN,
+        right: C.right + MARGIN,
+        bottom: C.bottom + MARGIN,
+      }
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const sw = Math.max(2, Math.round((region.right - region.left) * dpr))
+      const sh = Math.max(2, Math.round((region.bottom - region.top) * dpr))
+      if (strip.width !== sw || strip.height !== sh) {
+        strip.width = sw
+        strip.height = sh
+      }
+      sctx.setTransform(dpr, 0, 0, dpr, -region.left * dpr, -region.top * dpr)
+      try {
+        paintStrip(sctx, region)
+      } catch {
+        canvas.style.opacity = '0'
+        return
+      }
+
+      // 2) dokuyu yükle, merceği çiz
+      gl.bindTexture(gl.TEXTURE_2D, tex)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, strip)
+
       const w = Math.max(1, Math.floor(C.width * dpr))
       const hh = Math.max(1, Math.floor(C.height * dpr))
       if (canvas.width !== w || canvas.height !== hh) {
@@ -202,14 +172,14 @@ export default function LensGlass({ className = '' }: { className?: string }) {
         canvas.height = hh
         gl.viewport(0, 0, w, hh)
       }
-
+      const regionW = region.right - region.left
+      const regionH = region.bottom - region.top
       gl.uniform2f(uRes, w, hh)
-      gl.uniform2f(uUvOff, (C.left - originX) / dispW, (C.top - originY) / dispH)
-      gl.uniform2f(uUvScale, C.width / dispW, C.height / dispH)
-      gl.uniform2f(uHeroSpanX, R.left, R.width)
-      gl.uniform2f(uCanvasSpanX, C.left, C.width)
+      gl.uniform2f(uUvOff, MARGIN / regionW, MARGIN / regionH)
+      gl.uniform2f(uUvScale, C.width / regionW, C.height / regionH)
       gl.clear(gl.COLOR_BUFFER_BIT)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
+      canvas.style.opacity = '1'
     }
 
     let raf = 0

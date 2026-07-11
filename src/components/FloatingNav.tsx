@@ -57,6 +57,10 @@ export default function FloatingNav() {
   // (WebKit bug 245510). Tarayıcı kendini bildirir, Safari otomatik KOD 2 alır.
   const [refract, setRefract] = useState(false)
   useEffect(() => {
+    // test kapısı: ?glass=kod1 veya ?glass=kod2 ile elle seçilebilir
+    const q = new URLSearchParams(window.location.search).get('glass')
+    if (q === 'kod1') return setRefract(true)
+    if (q === 'kod2') return setRefract(false)
     const uaData = (
       navigator as Navigator & { userAgentData?: { brands?: { brand: string }[] } }
     ).userAgentData
@@ -197,6 +201,7 @@ export default function FloatingNav() {
 
   return (
     <div
+      data-glass-skip
       className="pointer-events-none fixed inset-x-0 top-7 z-50 flex flex-col items-center gap-2 px-4"
       style={{
         transform: introActive ? 'translateY(-160%)' : 'translateY(0)',
