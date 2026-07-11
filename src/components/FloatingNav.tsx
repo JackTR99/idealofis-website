@@ -16,6 +16,66 @@ const GLASS_BAR =
   'overflow-hidden bg-white/4 ' +
   'shadow-[0_24px_60px_rgba(0,0,0,0.09),0_10px_30px_-12px_rgba(20,20,20,0.18),inset_0_1px_0_rgba(255,255,255,0.5)]'
 
+// cam büyüteci: sayfanın (main) canlı kopyasını barın içinde scroll ile birebir
+// senkron akıtır ve bar merkezinden %7 büyütür → altından geçen içerik camda
+// büyümüş/kaymış görünür ("içinde su olan cam"). Kopya etkileşime kapalıdır ve
+// canlı içerikteki değişimleri yakalamak için 1,5 sn'de bir tazelenir.
+function GlassMirror() {
+  const holder = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const holderEl = holder.current
+    if (!holderEl) return
+    let clone: HTMLElement | null = null
+    let raf = 0
+    let lastClone = 0
+
+    const reclone = () => {
+      const src = document.querySelector('main')
+      if (!src) return
+      const fresh = src.cloneNode(true) as HTMLElement
+      // kopya sayfayla çakışmasın: kimlikler ve ağır/etkileşimli parçalar temizlenir
+      fresh.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'))
+      fresh.querySelectorAll('canvas, video, script, iframe').forEach((n) => n.remove())
+      if (clone) clone.replaceWith(fresh)
+      else holderEl.appendChild(fresh)
+      clone = fresh
+      lastClone = performance.now()
+    }
+
+    const tick = () => {
+      raf = requestAnimationFrame(tick)
+      const src = document.querySelector('main')
+      const bar = holderEl.closest('nav')
+      if (!src || !bar) return
+      if (!clone || (!document.hidden && performance.now() - lastClone > 1500)) reclone()
+      const B = bar.getBoundingClientRect()
+      const M = src.getBoundingClientRect()
+      holderEl.style.width = `${M.width}px`
+      holderEl.style.transform = `translate3d(${M.left - B.left}px, ${M.top - B.top}px, 0)`
+    }
+    tick()
+
+    return () => {
+      cancelAnimationFrame(raf)
+      clone?.remove()
+    }
+  }, [])
+
+  return (
+    <div
+      aria-hidden="true"
+      inert
+      className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
+    >
+      {/* büyütme bar merkezinden yapılır → cam altındaki içerik hafif şişmiş görünür */}
+      <div className="absolute inset-0" style={{ transform: 'scale(1.07)' }}>
+        <div ref={holder} className="absolute left-0 top-0 will-change-transform" />
+      </div>
+    </div>
+  )
+}
+
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
@@ -88,18 +148,28 @@ export default function FloatingNav() {
       }}
     >
       <nav ref={barRef} className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS_BAR}`}>
+        <GlassMirror />
         <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />
-        {/* kenar eritme: yalnız 10px'lik kenar şeridinde ince buğu — merkez jilet net.
-            Altından geçen yazı, camın kıvrımına gelince erir gibi görünür. */}
-        <div
-          className="pointer-events-none absolute inset-0 rounded-full backdrop-blur-[3px]"
-          style={{
-            padding: '10px',
-            WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-            WebkitMaskComposite: 'xor',
-            maskComposite: 'exclude',
-          }}
-        />
+        {/* kenar eritme: kenara doğru KADEMELİ artan buğu (1→2→3px), tek sert sınır yok.
+            Altından geçen içerik camın kıvrımına yaklaştıkça yumuşakça erir. */}
+        {[
+          { pad: 14, blur: 1 },
+          { pad: 9, blur: 2 },
+          { pad: 4, blur: 3 },
+        ].map((k) => (
+          <div
+            key={k.pad}
+            className="pointer-events-none absolute inset-0 rounded-full"
+            style={{
+              padding: `${k.pad}px`,
+              backdropFilter: `blur(${k.blur}px)`,
+              WebkitBackdropFilter: `blur(${k.blur}px)`,
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+            }}
+          />
+        ))}
         {/* iç parlama: sol-üst aydınlık, sağ-alt koyu → cam hacmi hissi */}
         <div
           className="pointer-events-none absolute inset-0 rounded-full"
