@@ -5,16 +5,11 @@ import LensGlass from './LensGlass'
 import { useIntro } from './IntroContext'
 
 // tekdüze çerçeve YOK; yönlü stroke + iç parlama ayrı katmanlarla veriliyor
-// (menü kartı için: buğulu cam)
 const GLASS =
   'overflow-hidden bg-white/4 ' +
-  'shadow-[0_24px_60px_rgba(0,0,0,0.09),0_10px_30px_-12px_rgba(20,20,20,0.18),inset_0_1px_0_rgba(255,255,255,0.5)] ' +
-  'backdrop-blur-lg backdrop-saturate-150'
-// bar için: BERRAK cam — buğu ve renk canlandırma yok; altından geçen içerik net
-// görünür, kenar eritmesi ayrı ince halkayla verilir (aşağıdaki katman)
-const GLASS_BAR =
-  'overflow-hidden bg-white/4 ' +
   'shadow-[0_24px_60px_rgba(0,0,0,0.09),0_10px_30px_-12px_rgba(20,20,20,0.18),inset_0_1px_0_rgba(255,255,255,0.5)]'
+// KOD 2 (Safari/iPhone ve diğerleri): klasik buğulu cam — orijinal navbar
+const FROST = 'backdrop-blur-lg backdrop-saturate-150'
 
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
@@ -49,6 +44,75 @@ export default function FloatingNav() {
     else openMenu()
   }
   const { introActive } = useIntro()
+
+  // KOD 1 / KOD 2 seçimi: gerçek ışık kırılması (SVG yer değiştirme haritalı
+  // backdrop-filter) yalnız Chromium'da çalışır; Safari/Firefox desteklemiyor
+  // (WebKit bug 245510). Tarayıcı kendini bildirir, Safari otomatik KOD 2 alır.
+  const [refract, setRefract] = useState(false)
+  useEffect(() => {
+    const uaData = (
+      navigator as Navigator & { userAgentData?: { brands?: { brand: string }[] } }
+    ).userAgentData
+    setRefract(!!uaData?.brands?.some((b) => /Chromium/i.test(b.brand)))
+  }, [])
+
+  // KOD 1: barın ölçülerine göre kubbe kırılma haritası üret (R=X, G=Y kayması).
+  // Merkez birebir net, kenara doğru artan bükülme — hero merceğiyle aynı fizik.
+  useEffect(() => {
+    if (!refract) return
+    const bar = barRef.current
+    const img = document.getElementById('liquid-lens-map')
+    if (!bar || !img) return
+    const draw = () => {
+      const W = Math.max(2, Math.round(bar.clientWidth))
+      const H = Math.max(2, Math.round(bar.clientHeight))
+      const c = document.createElement('canvas')
+      c.width = W
+      c.height = H
+      const ctx = c.getContext('2d')
+      if (!ctx) return
+      const px = ctx.createImageData(W, H)
+      const hx = W / 2
+      const hy = H / 2
+      const r = hy
+      const sd = (x: number, y: number) => {
+        const qx = Math.abs(x - hx) - (hx - r)
+        const qy = Math.abs(y - hy) - (hy - r)
+        const ax = Math.max(qx, 0)
+        const ay = Math.max(qy, 0)
+        return Math.hypot(ax, ay) + Math.min(Math.max(qx, qy), 0) - r
+      }
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const i = (y * W + x) * 4
+          const d = sd(x + 0.5, y + 0.5)
+          let dx = 0
+          let dy = 0
+          if (d < 0) {
+            const t = Math.min(1, -d / r)
+            const bend = (1 - t) * (1 - t) // merceğin kubbe eğrisiyle aynı
+            const gx = sd(x + 1.5, y + 0.5) - sd(x - 0.5, y + 0.5)
+            const gy = sd(x + 0.5, y + 1.5) - sd(x + 0.5, y - 0.5)
+            const len = Math.hypot(gx, gy) || 1
+            dx = (gx / len) * bend
+            dy = (gy / len) * bend
+          }
+          px.data[i] = Math.round(127.5 + dx * 127.5)
+          px.data[i + 1] = Math.round(127.5 + dy * 127.5)
+          px.data[i + 2] = 0
+          px.data[i + 3] = 255
+        }
+      }
+      ctx.putImageData(px, 0, 0)
+      img.setAttribute('href', c.toDataURL())
+      img.setAttribute('width', String(W))
+      img.setAttribute('height', String(H))
+    }
+    draw()
+    const ro = new ResizeObserver(draw)
+    ro.observe(bar)
+    return () => ro.disconnect()
+  }, [refract])
 
   // A: navbar koyu hero'nun üstündeyken içerik beyaza döner
   const [onHero, setOnHero] = useState(true)
@@ -87,28 +151,39 @@ export default function FloatingNav() {
         transition: 'transform 0.75s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease',
       }}
     >
-      <nav ref={barRef} className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS_BAR}`}>
+      {/* KOD 1 filtresi: kubbe haritasıyla arkadaki CANLI pikselleri büker (yalnız Chromium) */}
+      {refract && (
+        <svg width="0" height="0" aria-hidden="true" className="absolute">
+          <filter
+            id="liquid-lens"
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            colorInterpolationFilters="sRGB"
+            primitiveUnits="userSpaceOnUse"
+          >
+            <feImage id="liquid-lens-map" x="0" y="0" preserveAspectRatio="none" result="map" />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="map"
+              scale="44"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </svg>
+      )}
+      <nav
+        ref={barRef}
+        className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS} ${refract ? '' : FROST}`}
+        style={
+          refract
+            ? { backdropFilter: 'url(#liquid-lens)', WebkitBackdropFilter: 'url(#liquid-lens)' }
+            : undefined
+        }
+      >
         <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />
-        {/* kenar eritme: kenara doğru KADEMELİ artan buğu (1→2→3px), tek sert sınır yok.
-            Altından geçen içerik camın kıvrımına yaklaştıkça yumuşakça erir. */}
-        {[
-          { pad: 14, blur: 1 },
-          { pad: 9, blur: 2 },
-          { pad: 4, blur: 3 },
-        ].map((k) => (
-          <div
-            key={k.pad}
-            className="pointer-events-none absolute inset-0 rounded-full"
-            style={{
-              padding: `${k.pad}px`,
-              backdropFilter: `blur(${k.blur}px)`,
-              WebkitBackdropFilter: `blur(${k.blur}px)`,
-              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-            }}
-          />
-        ))}
         {/* iç parlama: sol-üst aydınlık, sağ-alt koyu → cam hacmi hissi */}
         <div
           className="pointer-events-none absolute inset-0 rounded-full"
@@ -223,7 +298,7 @@ export default function FloatingNav() {
 
       {open && (
         <nav
-          className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl lg:hidden ${GLASS} ${
+          className={`pointer-events-auto relative w-full max-w-5xl rounded-3xl lg:hidden ${GLASS} ${FROST} ${
             closing ? 'menu-card-out' : 'menu-card-in'
           }`}
           style={{ animationDelay: closing ? '560ms' : '600ms' }}
