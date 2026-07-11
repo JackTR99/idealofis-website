@@ -177,8 +177,11 @@ export default function LensGlass({ className = '' }: { className?: string }) {
       const R = bg.getBoundingClientRect()
       if (C.width < 2 || C.height < 2) return
 
-      // dikey çakışma → efektin görünürlüğü
-      const inter = Math.min(C.bottom, R.bottom) - Math.max(C.top, R.top)
+      // KOD A: bar hero'daki halini tüm sitede taşır — hero dikdörtgeni
+      // scroll=0 konumuyla değerlendirilir, görünüm kaydırmayla değişmez.
+      const heroTop0 = R.top + window.scrollY
+      const heroBottom0 = heroTop0 + R.height
+      const inter = Math.min(C.bottom, heroBottom0) - Math.max(C.top, heroTop0)
       const frac = Math.max(0, Math.min(1, inter / C.height))
       canvas.style.opacity = String(frac)
       if (frac <= 0) return
@@ -192,7 +195,7 @@ export default function LensGlass({ className = '' }: { className?: string }) {
       const dispW = texW * scale
       const dispH = texH * scale
       const originX = R.left + (R.width - dispW) * px
-      const originY = R.top + (R.height - dispH) * py
+      const originY = heroTop0 + (R.height - dispH) * py
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       const w = Math.max(1, Math.floor(C.width * dpr))
