@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { PAGES } from '../data/pages'
 import LensGlass from './LensGlass'
@@ -44,12 +44,32 @@ export default function FloatingNav() {
   }
   const { introActive } = useIntro()
 
-  // KOD A: hero'daki navbar — her sayfada ve her kaydırma konumunda AYNI görünüm
-  const logoShadow = 'drop-shadow(0 1px 6px rgba(0,0,0,0.4))'
-  const textShadow = '0 1px 10px rgba(0,0,0,0.4)'
-  const menuText = 'text-white'
-  const menuHover = 'hover:bg-white/15'
-  const menuPill = 'bg-white/10'
+  // A: navbar koyu hero'nun üstündeyken içerik beyaza döner
+  const [onHero, setOnHero] = useState(true)
+  useEffect(() => {
+    const check = () => {
+      const hero = document.querySelector('[data-glass-bg]')
+      if (!hero) return setOnHero(false)
+      setOnHero(hero.getBoundingClientRect().bottom > 88)
+    }
+    check()
+    window.addEventListener('scroll', check, { passive: true })
+    window.addEventListener('resize', check)
+    return () => {
+      window.removeEventListener('scroll', check)
+      window.removeEventListener('resize', check)
+    }
+  }, [pathname])
+
+  // B: her zeminde okunurluk için ince adaptif gölge (kutu değil)
+  const logoShadow = onHero
+    ? 'drop-shadow(0 1px 6px rgba(0,0,0,0.4))'
+    : 'drop-shadow(0 1px 3px rgba(255,255,255,0.55))'
+  const textShadow = onHero ? '0 1px 10px rgba(0,0,0,0.4)' : '0 1px 6px rgba(255,255,255,0.6)'
+  // mobil menü rengi: hero üstünde beyaz, açık zeminde koyu (renk uyumu + okunurluk)
+  const menuText = onHero ? 'text-white' : 'text-ink'
+  const menuHover = onHero ? 'hover:bg-white/15' : 'hover:bg-[rgba(20,20,20,0.09)]'
+  const menuPill = onHero ? 'bg-white/10' : 'bg-[rgba(20,20,20,0.05)]'
   const lastIndex = PAGES.length - 1
 
   return (
@@ -98,7 +118,17 @@ export default function FloatingNav() {
             className="flex items-center lg:mr-8"
           >
             <span className="relative inline-flex h-[2.8rem] items-center" style={{ filter: logoShadow }}>
-              <img src="/logo-white.png" alt="idealofis" className="h-[2.8rem] w-auto" />
+              <img
+                src="/logo-light.png"
+                alt="idealofis"
+                className={`h-[2.8rem] w-auto transition-opacity duration-300 ${onHero ? 'opacity-0' : 'opacity-100'}`}
+              />
+              <img
+                src="/logo-white.png"
+                alt=""
+                aria-hidden="true"
+                className={`absolute left-0 top-0 h-[2.8rem] w-auto transition-opacity duration-300 ${onHero ? 'opacity-100' : 'opacity-0'}`}
+              />
             </span>
           </Link>
 
@@ -110,7 +140,11 @@ export default function FloatingNav() {
                 style={{ textShadow }}
                 className={({ isActive }) =>
                   `whitespace-nowrap text-sm font-[450] tracking-[0.02em] transition-colors ${
-                    isActive ? 'text-brand' : 'text-white/90 hover:text-white'
+                    isActive
+                      ? 'text-brand'
+                      : onHero
+                        ? 'text-white/90 hover:text-white'
+                        : 'text-ink/80 hover:text-ink'
                   }`
                 }
               >
@@ -132,7 +166,7 @@ export default function FloatingNav() {
                 'transform 0.35s ease-in-out, color 0.3s ease, filter 0.3s ease',
               transitionDelay: '0.15s',
             }}
-            className="relative h-10 w-10 text-white lg:hidden"
+            className={`relative h-10 w-10 lg:hidden ${onHero ? 'text-white' : 'text-ink'}`}
           >
             <span className="relative mx-auto flex size-6 flex-col items-center justify-center gap-[4px]">
               {/* çizgiler: açılışta tek tek aşağı düşer, kapanışta geri yükselir */}
