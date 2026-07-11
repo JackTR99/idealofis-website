@@ -5,10 +5,16 @@ import LensGlass from './LensGlass'
 import { useIntro } from './IntroContext'
 
 // tekdüze çerçeve YOK; yönlü stroke + iç parlama ayrı katmanlarla veriliyor
+// (menü kartı için: buğulu cam)
 const GLASS =
   'overflow-hidden bg-white/4 ' +
   'shadow-[0_24px_60px_rgba(0,0,0,0.09),0_10px_30px_-12px_rgba(20,20,20,0.18),inset_0_1px_0_rgba(255,255,255,0.5)] ' +
   'backdrop-blur-lg backdrop-saturate-150'
+// bar için: BERRAK cam — buğu ve renk canlandırma yok; altından geçen içerik net
+// görünür, kenar eritmesi ayrı ince halkayla verilir (aşağıdaki katman)
+const GLASS_BAR =
+  'overflow-hidden bg-white/4 ' +
+  'shadow-[0_24px_60px_rgba(0,0,0,0.09),0_10px_30px_-12px_rgba(20,20,20,0.18),inset_0_1px_0_rgba(255,255,255,0.5)]'
 
 export default function FloatingNav() {
   const [open, setOpen] = useState(false)
@@ -81,8 +87,19 @@ export default function FloatingNav() {
         transition: 'transform 0.75s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease',
       }}
     >
-      <nav ref={barRef} className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS}`}>
+      <nav ref={barRef} className={`pointer-events-auto relative w-full max-w-5xl rounded-full ${GLASS_BAR}`}>
         <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />
+        {/* kenar eritme: yalnız 10px'lik kenar şeridinde ince buğu — merkez jilet net.
+            Altından geçen yazı, camın kıvrımına gelince erir gibi görünür. */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-full backdrop-blur-[3px]"
+          style={{
+            padding: '10px',
+            WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+          }}
+        />
         {/* iç parlama: sol-üst aydınlık, sağ-alt koyu → cam hacmi hissi */}
         <div
           className="pointer-events-none absolute inset-0 rounded-full"
