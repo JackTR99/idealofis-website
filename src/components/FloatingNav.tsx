@@ -18,39 +18,102 @@ const GLASS_BAR =
 
 // cam büyüteci: sayfanın (main) canlı kopyasını barın içinde scroll ile birebir
 // senkron akıtır ve bar merkezinden %7 büyütür → altından geçen içerik camda
-// büyümüş/kaymış görünür ("içinde su olan cam"). Kopya etkileşime kapalıdır ve
-// canlı içerikteki değişimleri yakalamak için 1,5 sn'de bir tazelenir.
+// büyümüş/kaymış görünür ("içinde su olan cam"). Kopya ANLIK canlıdır:
+// sayfadaki her değişiklik olduğu karede kopyaya işlenir (hero merceği gibi).
 function GlassMirror() {
   const holder = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const holderEl = holder.current
     if (!holderEl) return
+    let src: HTMLElement | null = null
     let clone: HTMLElement | null = null
     let raf = 0
-    let lastClone = 0
+    let needFullClone = false
 
-    const reclone = () => {
-      const src = document.querySelector('main')
+    // canlı düğüm → kopyadaki eşi (aynı çocuk-indeks yolu üzerinden)
+    const mirrorNode = (node: Node): Node | null => {
+      if (!src || !clone) return null
+      const path: number[] = []
+      let n: Node | null = node
+      while (n && n !== src) {
+        const parent: Node | null = n.parentNode
+        if (!parent) return null
+        path.push(Array.prototype.indexOf.call(parent.childNodes, n))
+        n = parent
+      }
+      if (n !== src) return null
+      let m: Node | undefined = clone
+      for (let i = path.length - 1; i >= 0; i--) m = m?.childNodes[path[i]]
+      return m ?? null
+    }
+
+    const fullClone = () => {
       if (!src) return
       const fresh = src.cloneNode(true) as HTMLElement
-      // kopya sayfayla çakışmasın: kimlikler ve ağır/etkileşimli parçalar temizlenir
+      // kopya sayfayla çakışmasın (düğüm SİLİNMEZ ki canlı/kopya hizası bozulmasın)
       fresh.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'))
-      fresh.querySelectorAll('canvas, video, script, iframe').forEach((n) => n.remove())
       if (clone) clone.replaceWith(fresh)
       else holderEl.appendChild(fresh)
       clone = fresh
-      lastClone = performance.now()
+      needFullClone = false
     }
+
+    // sayfadaki değişiklikler ANINDA kopyaya işlenir
+    const mo = new MutationObserver((records) => {
+      for (const r of records) {
+        if (r.type === 'characterData') {
+          const m = mirrorNode(r.target)
+          if (m) m.textContent = r.target.textContent
+          else needFullClone = true
+        } else if (r.type === 'attributes' && r.target instanceof Element) {
+          const m = mirrorNode(r.target)
+          if (m instanceof Element && r.attributeName) {
+            if (r.attributeName === 'id') continue
+            const v = r.target.getAttribute(r.attributeName)
+            if (v === null) m.removeAttribute(r.attributeName)
+            else m.setAttribute(r.attributeName, v)
+          } else needFullClone = true
+        } else {
+          // düğüm eklendi/çıktı → yapı değişti, bir sonraki karede komple tazele
+          needFullClone = true
+        }
+      }
+    })
 
     const tick = () => {
       raf = requestAnimationFrame(tick)
-      const src = document.querySelector('main')
       const bar = holderEl.closest('nav')
-      if (!src || !bar) return
-      if (!clone || (!document.hidden && performance.now() - lastClone > 1500)) reclone()
+      const liveSrc = document.querySelector<HTMLElement>('main')
+      if (!bar || !liveSrc) return
+      if (liveSrc !== src) {
+        src = liveSrc
+        mo.disconnect()
+        mo.observe(src, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+          attributes: true,
+        })
+        needFullClone = true
+      }
+      if (needFullClone || !clone) fullClone()
+
+      // iç kaydırmalar (kart şeridi vb.) özniteliğe yansımaz → her kare eşitle
+      const liveScrollers = src!.querySelectorAll('.overflow-x-auto')
+      const cloneScrollers = clone!.querySelectorAll('.overflow-x-auto')
+      liveScrollers.forEach((el, i) => {
+        const c = cloneScrollers[i]
+        if (c && c.scrollLeft !== el.scrollLeft) c.scrollLeft = el.scrollLeft
+      })
+
+      // mercek görünürken ayna gizlenir → hero'da çift görüntü olmaz
+      const lens = bar.querySelector<HTMLCanvasElement>('canvas')
+      const lensOp = lens ? parseFloat(lens.style.opacity || '0') : 0
+      holderEl.parentElement!.parentElement!.style.opacity = String(1 - lensOp)
+
       const B = bar.getBoundingClientRect()
-      const M = src.getBoundingClientRect()
+      const M = src!.getBoundingClientRect()
       holderEl.style.width = `${M.width}px`
       holderEl.style.transform = `translate3d(${M.left - B.left}px, ${M.top - B.top}px, 0)`
     }
@@ -58,6 +121,7 @@ function GlassMirror() {
 
     return () => {
       cancelAnimationFrame(raf)
+      mo.disconnect()
       clone?.remove()
     }
   }, [])
