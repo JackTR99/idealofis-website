@@ -63,15 +63,24 @@ export default function FloatingNav() {
     const bar = barRef.current
     const img = document.getElementById('liquid-lens-map')
     if (!bar || !img) return
+    const edgeImg = document.getElementById('liquid-lens-edge')
+    // gradyan sönüm: kenarda 1 → merkezde 0, iki uçta sıfır eğimle (çizgisiz geçiş)
+    const smootherstep = (v: number) =>
+      v <= 0 ? 0 : v >= 1 ? 1 : v * v * v * (v * (v * 6 - 15) + 10)
     const draw = () => {
       const W = Math.max(2, Math.round(bar.clientWidth))
       const H = Math.max(2, Math.round(bar.clientHeight))
       const c = document.createElement('canvas')
       c.width = W
       c.height = H
+      const ce = document.createElement('canvas')
+      ce.width = W
+      ce.height = H
       const ctx = c.getContext('2d')
-      if (!ctx) return
+      const ctxE = ce.getContext('2d')
+      if (!ctx || !ctxE) return
       const px = ctx.createImageData(W, H)
+      const pe = ctxE.createImageData(W, H)
       const hx = W / 2
       const hy = H / 2
       const r = hy
@@ -88,25 +97,39 @@ export default function FloatingNav() {
           const d = sd(x + 0.5, y + 0.5)
           let dx = 0
           let dy = 0
+          let bend = 0
           if (d < 0) {
             const t = Math.min(1, -d / r)
-            const bend = (1 - t) * (1 - t) // merceğin kubbe eğrisiyle aynı
+            bend = 1 - smootherstep(t)
             const gx = sd(x + 1.5, y + 0.5) - sd(x - 0.5, y + 0.5)
             const gy = sd(x + 0.5, y + 1.5) - sd(x + 0.5, y - 0.5)
             const len = Math.hypot(gx, gy) || 1
-            dx = (gx / len) * bend
-            dy = (gy / len) * bend
+            // İÇE doğru örnekleme (büyüteç): pill dışından örnek alınmaz →
+            // kenarlarda düz çizgi/leke oluşmaz
+            dx = -(gx / len) * bend
+            dy = -(gy / len) * bend
           }
           px.data[i] = Math.round(127.5 + dx * 127.5)
           px.data[i + 1] = Math.round(127.5 + dy * 127.5)
           px.data[i + 2] = 0
           px.data[i + 3] = 255
+          // kenar maskesi: bükülen banda hafif bulanıklık karışımı için
+          pe.data[i] = 255
+          pe.data[i + 1] = 255
+          pe.data[i + 2] = 255
+          pe.data[i + 3] = Math.round(bend * 255)
         }
       }
       ctx.putImageData(px, 0, 0)
+      ctxE.putImageData(pe, 0, 0)
       img.setAttribute('href', c.toDataURL())
       img.setAttribute('width', String(W))
       img.setAttribute('height', String(H))
+      if (edgeImg) {
+        edgeImg.setAttribute('href', ce.toDataURL())
+        edgeImg.setAttribute('width', String(W))
+        edgeImg.setAttribute('height', String(H))
+      }
     }
     draw()
     const ro = new ResizeObserver(draw)
@@ -167,10 +190,19 @@ export default function FloatingNav() {
             <feDisplacementMap
               in="SourceGraphic"
               in2="map"
-              scale="44"
+              scale="36"
               xChannelSelector="R"
               yChannelSelector="G"
+              result="bent"
             />
+            {/* bükülen banda hafif bulanıklık: merkez jilet net kalır */}
+            <feGaussianBlur in="bent" stdDeviation="1.3" result="soft" />
+            <feImage id="liquid-lens-edge" x="0" y="0" preserveAspectRatio="none" result="edge" />
+            <feComposite in="soft" in2="edge" operator="in" result="softEdge" />
+            <feMerge>
+              <feMergeNode in="bent" />
+              <feMergeNode in="softEdge" />
+            </feMerge>
           </filter>
         </svg>
       )}
@@ -183,7 +215,8 @@ export default function FloatingNav() {
             : undefined
         }
       >
-        <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />
+        {/* TEK CAM: Chromium'da bükmeyi filtre yapar, mercek yalnız KOD 2'de (Safari) */}
+        {!refract && <LensGlass className="pointer-events-none absolute inset-0 h-full w-full" />}
         {/* iç parlama: sol-üst aydınlık, sağ-alt koyu → cam hacmi hissi */}
         <div
           className="pointer-events-none absolute inset-0 rounded-full"
