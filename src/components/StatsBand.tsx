@@ -153,7 +153,11 @@ export default function StatsBand() {
       <div className="mx-auto max-w-6xl px-5 py-16">
         <div className="mb-12 text-center" style={headingFx}>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Rakamlarla</p>
-          <h2 className="mt-2 text-2xl font-semibold text-ink sm:text-3xl">Bir bakışta İdeal Ofis</h2>
+          <h2 className="mt-2 text-2xl font-semibold text-ink sm:text-3xl">
+            Bir bakışta{' '}
+            <span className="font-display font-semibold tracking-tight">ideal</span>
+            <span className="font-display font-semibold tracking-tight text-brand">ofis</span>
+          </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
