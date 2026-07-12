@@ -13,6 +13,6 @@ Kural: logo/ikon dışındaki tüm görseller `public/images/` altında, dosya a
 | public/images/why/calisma.jpg | Neden İdeal — Güvenlik kartı |
 | public/images/why/toplanti.jpg | Neden İdeal — Yatırım kartı |
 | public/images/ofisler/ofis-1.png | Ofislerimiz + anasayfa vitrini — OFİS I planı (Kaan'ın iyileştirilmiş render'ı) |
-| public/images/ofisler/ofis-3.png | Ofislerimiz + anasayfa vitrini — OFİS III planı (yeni katalog PDF 300dpi; Kaan iyileştirilmişini yükleyince değişecek) |
-| public/images/ofisler/ofis-5.png | Ofislerimiz + anasayfa vitrini — OFİS V planı (yeni katalog PDF 300dpi; Kaan iyileştirilmişini yükleyince değişecek) |
-| public/images/ofisler/ofis-7.png | Ofislerimiz + anasayfa vitrini — OFİS VII planı (yeni katalog PDF 300dpi; Kaan iyileştirilmişini yükleyince değişecek) |
+| public/images/ofisler/ofis-3.png | Ofislerimiz + anasayfa vitrini — OFİS III planı (Kaan'ın iyileştirilmiş render'ı) |
+| public/images/ofisler/ofis-5.png | Ofislerimiz + anasayfa vitrini — OFİS V planı (Kaan'ın iyileştirilmiş render'ı) |
+| public/images/ofisler/ofis-7.png | Ofislerimiz + anasayfa vitrini — OFİS VII planı (Kaan'ın iyileştirilmiş render'ı) |

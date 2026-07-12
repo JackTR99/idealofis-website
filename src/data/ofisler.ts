@@ -2,8 +2,7 @@
  * Ofis tipleri — katalog s.19-22'den (OFİS I / III / V / VII).
  * Koordinatlar görselin YÜZDESİ (0-100). Poligonlar plan görseli üzerindeki
  * oda sınırlarıdır; ajan üretimi + bağımsız kontrol sonrası buraya işlenir.
- * Görseller: ofis-1 = Kaan'ın iyileştirilmiş render'ı; 3/5/7 katalogdan
- * geçici kırpım — Kaan iyileştirilmişini yükleyince dosya değişir, veri kalır.
+ * Görseller: dördü de Kaan'ın iyileştirilmiş render'ları (İdeal Ofis/Resimler).
  */
 
 export type AlanId = 'calisma' | 'mutfak' | 'wc' | 'balkon'
@@ -43,16 +42,16 @@ export const OFISLER: Ofis[] = [
     roma: 'I',
     ad: 'Ofis I',
     gorsel: '/images/ofisler/ofis-1.png',
-    en: 1111,
-    boy: 1415,
+    en: 872,
+    boy: 1112,
     net: '58,58',
     brut: '65,30',
     genelBrut: '101,12',
     alanlar: [
-      { id: 'calisma', ad: 'Çalışma Odası', m2: '50,96', renk: ALAN_RENK.calisma, nokta: { x: 43.21, y: 41.53 }, poligon: [{ x: 6.12, y: 4.52 }, { x: 71.2, y: 4.52 }, { x: 71.56, y: 15.55 }, { x: 71.56, y: 93.5 }, { x: 63.19, y: 93.5 }, { x: 63.19, y: 79.01 }, { x: 55.54, y: 79.01 }, { x: 55.54, y: 77.74 }, { x: 47.52, y: 77.74 }, { x: 47.52, y: 74.77 }, { x: 38.34, y: 74.77 }, { x: 38.34, y: 75.62 }, { x: 24.57, y: 75.62 }, { x: 15.48, y: 42.4 }] },
-      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '1,17', renk: ALAN_RENK.mutfak, nokta: { x: 59.41, y: 87.89 }, poligon: [{ x: 47.34, y: 78.87 }, { x: 63.01, y: 78.87 }, { x: 63.01, y: 93.99 }, { x: 47.34, y: 94.56 }] },
-      { id: 'wc', ad: 'Wc', m2: '3,15', renk: ALAN_RENK.wc, nokta: { x: 84.18, y: 84.79 }, poligon: [{ x: 73.09, y: 79.86 }, { x: 94.87, y: 79.86 }, { x: 94.87, y: 94.13 }, { x: 73.09, y: 94.13 }] },
-      { id: 'balkon', ad: 'Balkon', m2: '3,30', renk: ALAN_RENK.balkon, nokta: { x: 32.51, y: 88.61 }, poligon: [{ x: 25.11, y: 77.74 }, { x: 39.06, y: 77.74 }, { x: 40.23, y: 84.88 }, { x: 40.41, y: 85.8 }, { x: 44.37, y: 85.8 }, { x: 44.37, y: 94.06 }, { x: 29.7, y: 94.56 }] },
+      { id: 'calisma', ad: 'Çalışma Odası', m2: '50,96', renk: ALAN_RENK.calisma, nokta: { x: 43.53, y: 42.35 }, poligon: [{ x: 6.43, y: 6.03 }, { x: 71.53, y: 6.03 }, { x: 71.89, y: 16.85 }, { x: 71.89, y: 93.34 }, { x: 63.52, y: 93.34 }, { x: 63.52, y: 79.12 }, { x: 55.86, y: 79.12 }, { x: 55.86, y: 77.88 }, { x: 47.84, y: 77.88 }, { x: 47.84, y: 74.96 }, { x: 38.66, y: 74.96 }, { x: 38.66, y: 75.8 }, { x: 24.89, y: 75.8 }, { x: 15.8, y: 43.2 }] },
+      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '1,17', renk: ALAN_RENK.mutfak, nokta: { x: 59.73, y: 87.84 }, poligon: [{ x: 47.66, y: 78.99 }, { x: 63.34, y: 78.99 }, { x: 63.34, y: 93.82 }, { x: 47.66, y: 94.38 }] },
+      { id: 'wc', ad: 'Wc', m2: '3,15', renk: ALAN_RENK.wc, nokta: { x: 84.51, y: 84.8 }, poligon: [{ x: 73.42, y: 79.96 }, { x: 95.2, y: 79.96 }, { x: 95.2, y: 93.96 }, { x: 73.42, y: 93.96 }] },
+      { id: 'balkon', ad: 'Balkon', m2: '3,30', renk: ALAN_RENK.balkon, nokta: { x: 32.83, y: 88.54 }, poligon: [{ x: 25.43, y: 77.88 }, { x: 39.38, y: 77.88 }, { x: 40.55, y: 84.88 }, { x: 40.73, y: 85.79 }, { x: 44.69, y: 85.79 }, { x: 44.69, y: 93.89 }, { x: 30.02, y: 94.38 }] },
     ],
   },
   {
@@ -60,16 +59,16 @@ export const OFISLER: Ofis[] = [
     roma: 'III',
     ad: 'Ofis III',
     gorsel: '/images/ofisler/ofis-3.png',
-    en: 758,
-    boy: 564,
+    en: 806,
+    boy: 614,
     net: '70,20',
     brut: '76,79',
     genelBrut: '118,92',
     alanlar: [
-      { id: 'calisma', ad: 'Çalışma Odası', m2: '61,23', renk: ALAN_RENK.calisma, nokta: { x: 58.31, y: 67.18 }, poligon: [{ x: 2.78, y: 3.73 }, { x: 44.98, y: 3.73 }, { x: 44.98, y: 29.43 }, { x: 64.24, y: 29.43 }, { x: 64.24, y: 23.41 }, { x: 79.3, y: 23.41 }, { x: 79.3, y: 29.62 }, { x: 86.54, y: 29.62 }, { x: 86.54, y: 3.73 }, { x: 97.62, y: 3.73 }, { x: 97.62, y: 70.57 }, { x: 95.77, y: 70.57 }, { x: 95.77, y: 78.02 }, { x: 77.71, y: 78.02 }, { x: 77.71, y: 96.62 }, { x: 17.94, y: 96.62 }] },
-      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '2,83', renk: ALAN_RENK.mutfak, nokta: { x: 76.89, y: 16.16 }, poligon: [{ x: 64.37, y: 3.18 }, { x: 84.56, y: 3.18 }, { x: 84.56, y: 21.81 }, { x: 64.37, y: 21.81 }] },
-      { id: 'wc', ad: 'Wc', m2: '3,21', renk: ALAN_RENK.wc, nokta: { x: 56.71, y: 15.61 }, poligon: [{ x: 51.31, y: 1.94 }, { x: 63.32, y: 1.94 }, { x: 63.32, y: 27.3 }, { x: 51.31, y: 27.3 }] },
-      { id: 'balkon', ad: 'Balkon', m2: '2,93', renk: ALAN_RENK.balkon, nokta: { x: 85.89, y: 87.52 }, poligon: [{ x: 79.68, y: 81.04 }, { x: 97.62, y: 81.04 }, { x: 97.62, y: 98.58 }, { x: 79.68, y: 98.58 }] },
+      { id: 'calisma', ad: 'Çalışma Odası', m2: '61,23', renk: ALAN_RENK.calisma, nokta: { x: 57.75, y: 65.96 }, poligon: [{ x: 3.52, y: 5.44 }, { x: 44.73, y: 5.44 }, { x: 44.73, y: 29.95 }, { x: 63.54, y: 29.95 }, { x: 63.54, y: 24.21 }, { x: 78.25, y: 24.21 }, { x: 78.25, y: 30.13 }, { x: 85.32, y: 30.13 }, { x: 85.32, y: 5.44 }, { x: 96.14, y: 5.44 }, { x: 96.14, y: 69.19 }, { x: 94.33, y: 69.19 }, { x: 94.33, y: 76.3 }, { x: 76.69, y: 76.3 }, { x: 76.69, y: 94.04 }, { x: 18.33, y: 94.04 }] },
+      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '2,83', renk: ALAN_RENK.mutfak, nokta: { x: 75.89, y: 17.29 }, poligon: [{ x: 63.67, y: 4.91 }, { x: 83.38, y: 4.91 }, { x: 83.38, y: 22.68 }, { x: 63.67, y: 22.68 }] },
+      { id: 'wc', ad: 'Wc', m2: '3,21', renk: ALAN_RENK.wc, nokta: { x: 56.19, y: 16.77 }, poligon: [{ x: 50.91, y: 3.73 }, { x: 62.64, y: 3.73 }, { x: 62.64, y: 27.92 }, { x: 50.91, y: 27.92 }] },
+      { id: 'balkon', ad: 'Balkon', m2: '2,93', renk: ALAN_RENK.balkon, nokta: { x: 84.68, y: 85.36 }, poligon: [{ x: 78.62, y: 79.18 }, { x: 96.14, y: 79.18 }, { x: 96.14, y: 95.91 }, { x: 78.62, y: 95.91 }] },
     ],
   },
   {
@@ -77,16 +76,16 @@ export const OFISLER: Ofis[] = [
     roma: 'V',
     ad: 'Ofis V',
     gorsel: '/images/ofisler/ofis-5.png',
-    en: 1260,
-    boy: 1388,
+    en: 822,
+    boy: 918,
     net: '72,52',
     brut: '80,73',
     genelBrut: '125,02',
     alanlar: [
-      { id: 'calisma', ad: 'Çalışma Odası', m2: '64,78', renk: ALAN_RENK.calisma, nokta: { x: 32.18, y: 44.84 }, poligon: [{ x: 2.22, y: 23.2 }, { x: 8.57, y: 23.2 }, { x: 8.57, y: 15.64 }, { x: 18.81, y: 15.64 }, { x: 18.81, y: 30.19 }, { x: 39.04, y: 30.19 }, { x: 39.04, y: 15.64 }, { x: 40.39, y: 15.64 }, { x: 40.39, y: 2.16 }, { x: 66.83, y: 2.16 }, { x: 66.83, y: 22.12 }, { x: 85.88, y: 22.12 }, { x: 87.77, y: 23.06 }, { x: 96.75, y: 97.77 }, { x: 48.57, y: 97.77 }, { x: 48.57, y: 84.36 }, { x: 23.89, y: 84.36 }, { x: 23.89, y: 58.07 }, { x: 2.22, y: 58.07 }] },
-      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '1,33', renk: ALAN_RENK.mutfak, nokta: { x: 29.19, y: 27.92 }, poligon: [{ x: 18.81, y: 15.64 }, { x: 39.04, y: 15.64 }, { x: 39.04, y: 30.19 }, { x: 18.81, y: 30.19 }] },
-      { id: 'wc', ad: 'Wc', m2: '3,34', renk: ALAN_RENK.wc, nokta: { x: 10.68, y: 70.8 }, poligon: [{ x: 2.22, y: 59.29 }, { x: 14.6, y: 59.29 }, { x: 14.6, y: 66.35 }, { x: 22.93, y: 66.35 }, { x: 22.93, y: 75.79 }, { x: 13.73, y: 75.79 }, { x: 13.73, y: 82.14 }, { x: 2.22, y: 82.14 }] },
-      { id: 'balkon', ad: 'Balkon', m2: '3,07', renk: ALAN_RENK.balkon, nokta: { x: 77.96, y: 8.64 }, poligon: [{ x: 69.6, y: 2.16 }, { x: 86.51, y: 2.16 }, { x: 88.65, y: 20.03 }, { x: 73.49, y: 20.03 }, { x: 73.49, y: 11.96 }, { x: 69.6, y: 11.96 }] },
+      { id: 'calisma', ad: 'Çalışma Odası', m2: '64,78', renk: ALAN_RENK.calisma, nokta: { x: 32.61, y: 45.3 }, poligon: [{ x: 4.33, y: 25.21 }, { x: 10.32, y: 25.21 }, { x: 10.32, y: 18.19 }, { x: 19.99, y: 18.19 }, { x: 19.99, y: 31.7 }, { x: 39.08, y: 31.7 }, { x: 39.08, y: 18.19 }, { x: 40.36, y: 18.19 }, { x: 40.36, y: 5.67 }, { x: 65.32, y: 5.67 }, { x: 65.32, y: 24.21 }, { x: 83.3, y: 24.21 }, { x: 85.09, y: 25.08 }, { x: 93.56, y: 94.45 }, { x: 48.08, y: 94.45 }, { x: 48.08, y: 82.0 }, { x: 24.78, y: 82.0 }, { x: 24.78, y: 57.58 }, { x: 4.33, y: 57.58 }] },
+      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '1,33', renk: ALAN_RENK.mutfak, nokta: { x: 29.79, y: 29.59 }, poligon: [{ x: 19.99, y: 18.19 }, { x: 39.08, y: 18.19 }, { x: 39.08, y: 31.7 }, { x: 19.99, y: 31.7 }] },
+      { id: 'wc', ad: 'Wc', m2: '3,34', renk: ALAN_RENK.wc, nokta: { x: 12.31, y: 69.4 }, poligon: [{ x: 4.33, y: 58.72 }, { x: 16.01, y: 58.72 }, { x: 16.01, y: 65.27 }, { x: 23.88, y: 65.27 }, { x: 23.88, y: 74.04 }, { x: 15.19, y: 74.04 }, { x: 15.19, y: 79.93 }, { x: 4.33, y: 79.93 }] },
+      { id: 'balkon', ad: 'Balkon', m2: '3,07', renk: ALAN_RENK.balkon, nokta: { x: 75.83, y: 11.69 }, poligon: [{ x: 67.93, y: 5.67 }, { x: 83.9, y: 5.67 }, { x: 85.92, y: 22.26 }, { x: 71.61, y: 22.26 }, { x: 71.61, y: 14.77 }, { x: 67.93, y: 14.77 }] },
     ],
   },
   {
@@ -94,16 +93,16 @@ export const OFISLER: Ofis[] = [
     roma: 'VII',
     ad: 'Ofis VII',
     gorsel: '/images/ofisler/ofis-7.png',
-    en: 672,
-    boy: 796,
+    en: 598,
+    boy: 718,
     net: '45,22',
     brut: '51,01',
     genelBrut: '78,99',
     alanlar: [
-      { id: 'calisma', ad: 'Çalışma Odası', m2: '34,18', renk: ALAN_RENK.calisma, nokta: { x: 59.03, y: 54.78 }, poligon: [{ x: 5.07, y: 24.49 }, { x: 50.14, y: 24.49 }, { x: 50.14, y: 57.29 }, { x: 52.08, y: 57.29 }, { x: 52.08, y: 3.39 }, { x: 95.97, y: 3.39 }, { x: 95.97, y: 69.1 }, { x: 78.42, y: 69.1 }, { x: 78.42, y: 97.24 }, { x: 52.08, y: 97.24 }, { x: 52.08, y: 68.34 }, { x: 50.14, y: 68.34 }, { x: 50.14, y: 70.61 }, { x: 44.19, y: 70.61 }, { x: 44.19, y: 75.25 }, { x: 10.56, y: 75.25 }, { x: 10.56, y: 70.73 }, { x: 3.71, y: 70.73 }, { x: 3.71, y: 46.23 }, { x: 5.07, y: 46.23 }] },
-      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '1,87', renk: ALAN_RENK.mutfak, nokta: { x: 76.52, y: 87.19 }, poligon: [{ x: 80.22, y: 76.38 }, { x: 96.27, y: 76.38 }, { x: 96.27, y: 97.24 }, { x: 80.22, y: 97.24 }] },
-      { id: 'wc', ad: 'Wc', m2: '4', renk: ALAN_RENK.wc, nokta: { x: 32.73, y: 90.75 }, poligon: [{ x: 10.86, y: 77.13 }, { x: 44.19, y: 77.13 }, { x: 44.19, y: 84.92 }, { x: 50.14, y: 84.92 }, { x: 50.14, y: 97.24 }, { x: 10.86, y: 97.24 }] },
-      { id: 'balkon', ad: 'Balkon', m2: '5,17', renk: ALAN_RENK.balkon, nokta: { x: 28.51, y: 12.16 }, poligon: [{ x: 3.57, y: 1.51 }, { x: 48.5, y: 1.51 }, { x: 48.5, y: 21.73 }, { x: 5.07, y: 21.73 }, { x: 5.07, y: 18.97 }, { x: 3.57, y: 18.97 }] },
+      { id: 'calisma', ad: 'Çalışma Odası', m2: '34,18', renk: ALAN_RENK.calisma, nokta: { x: 58.41, y: 53.47 }, poligon: [{ x: 6.53, y: 24.67 }, { x: 49.87, y: 24.67 }, { x: 49.87, y: 55.85 }, { x: 51.73, y: 55.85 }, { x: 51.73, y: 4.61 }, { x: 93.93, y: 4.61 }, { x: 93.93, y: 67.08 }, { x: 77.06, y: 67.08 }, { x: 77.06, y: 93.83 }, { x: 51.73, y: 93.83 }, { x: 51.73, y: 66.36 }, { x: 49.87, y: 66.36 }, { x: 49.87, y: 68.52 }, { x: 44.14, y: 68.52 }, { x: 44.14, y: 72.93 }, { x: 11.81, y: 72.93 }, { x: 11.81, y: 68.63 }, { x: 5.22, y: 68.63 }, { x: 5.22, y: 45.34 }, { x: 6.53, y: 45.34 }] },
+      { id: 'mutfak', ad: 'Mutfak Nişi', m2: '1,87', renk: ALAN_RENK.mutfak, nokta: { x: 75.23, y: 84.28 }, poligon: [{ x: 78.79, y: 74.0 }, { x: 94.22, y: 74.0 }, { x: 94.22, y: 93.83 }, { x: 78.79, y: 93.83 }] },
+      { id: 'wc', ad: 'Wc', m2: '4', renk: ALAN_RENK.wc, nokta: { x: 33.13, y: 87.66 }, poligon: [{ x: 12.1, y: 74.71 }, { x: 44.14, y: 74.71 }, { x: 44.14, y: 82.12 }, { x: 49.87, y: 82.12 }, { x: 49.87, y: 93.83 }, { x: 12.1, y: 93.83 }] },
+      { id: 'balkon', ad: 'Balkon', m2: '5,17', renk: ALAN_RENK.balkon, nokta: { x: 29.07, y: 12.95 }, poligon: [{ x: 5.09, y: 2.83 }, { x: 48.29, y: 2.83 }, { x: 48.29, y: 22.05 }, { x: 6.53, y: 22.05 }, { x: 6.53, y: 19.42 }, { x: 5.09, y: 19.42 }] },
     ],
   },
 ]
