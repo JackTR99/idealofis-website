@@ -5,14 +5,8 @@ Kural: logo/ikon dışındaki tüm görseller `public/images/` altında, dosya a
 | Dosya | Kullanım |
 | --- | --- |
 | public/images/hero/hero-0001..0193.jpg | Anasayfa hero video kare dizisi |
-| public/images/why/harita.jpg | Neden İdeal — lokasyon kartı hover haritası (izmir 4) |
-| public/images/why/lokasyon.jpg | Neden İdeal — lokasyon kartı (GEÇİCİ, havadan çekim gelecek) |
-| public/images/why/ofis.jpg | Neden İdeal — A+ Mimari kartı |
-| public/images/why/balkon.jpg | Neden İdeal — Nefes Alan kartı |
-| public/images/why/lobby.jpg | Neden İdeal — Ayrıcalıklar kartı |
-| public/images/why/calisma.jpg | Neden İdeal — Güvenlik kartı |
-| public/images/why/toplanti.jpg | Neden İdeal — Yatırım kartı |
-| public/images/ofisler/ofis-1.png | Ofislerimiz + anasayfa vitrini — OFİS I planı (Kaan'ın iyileştirilmiş render'ı) |
-| public/images/ofisler/ofis-3.png | Ofislerimiz + anasayfa vitrini — OFİS III planı (Kaan'ın iyileştirilmiş render'ı) |
-| public/images/ofisler/ofis-5.png | Ofislerimiz + anasayfa vitrini — OFİS V planı (Kaan'ın iyileştirilmiş render'ı) |
-| public/images/ofisler/ofis-7.png | Ofislerimiz + anasayfa vitrini — OFİS VII planı (Kaan'ın iyileştirilmiş render'ı) |
+| public/images/why/*.jpg | Neden İdeal bölümü kart görselleri |
+| public/images/ofisler/ofis-1.png | Ofis 1 planı — Kaan render'ı (50C899CE) |
+| public/images/ofisler/ofis-2.png | Ofis 2 planı — Kaan render'ı (49D9A8CB) |
+| public/images/ofisler/ofis-3.png | Ofis 3 planı — Kaan render'ı (1A0F496D) |
+| public/images/ofisler/ofis-4.png | Ofis 4 planı — Kaan render'ı (0D9269AD) |
