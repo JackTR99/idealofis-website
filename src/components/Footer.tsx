@@ -9,7 +9,8 @@ export default function Footer() {
           <div className="max-w-sm">
             <img src="/logo-dark.png" alt="idealofis" className="h-10 w-auto" />
             <p className="mt-4 text-sm leading-relaxed text-white/60">
-              Modern ofis ve toplantı çözümleri. Web sitemiz yapım aşamasındadır.
+              Bayraklı'nın merkezinde, prestijli şirketler için tasarlanan 102 ofis ve
+              modern toplantı çözümleri.
             </p>
           </div>
 

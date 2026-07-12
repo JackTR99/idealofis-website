@@ -220,6 +220,38 @@
   }
 }
 
+/* ofis planı noktaları: nefes alan halka */
+.ofis-dot {
+  position: relative;
+}
+.ofis-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  opacity: 0;
+  animation: ofisPulse 2.4s ease-out infinite;
+}
+@keyframes ofisPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ofis-dot::after {
+    animation: none;
+  }
+}
+
 /* cam nefesi (KOD 1 su hissi): kenar parlaması %3 aralığında çok yavaş soluk alır */
 @keyframes glassBreath {
   0%,

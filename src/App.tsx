@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import UnderConstruction from './pages/UnderConstruction'
 import Home from './pages/Home'
+import Ofislerimiz from './pages/Ofislerimiz'
 import { PAGES, LEGAL_PAGES } from './data/pages'
 
 function App() {
@@ -9,7 +10,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        {PAGES.map((p) => (
+        <Route path="/ofislerimiz" element={<Ofislerimiz />} />
+        {PAGES.filter((p) => p.path !== '/ofislerimiz').map((p) => (
           <Route
             key={p.path}
             path={p.path}

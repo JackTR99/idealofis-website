@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import HeroSequence from '../components/HeroSequence'
 import StatsBand from '../components/StatsBand'
 import WhyIdeal from '../components/WhyIdeal'
+import OfislerTeaser from '../components/OfislerTeaser'
+import IletisimCta from '../components/IletisimCta'
 import { useIntro } from '../components/IntroContext'
 
 const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
@@ -166,6 +168,8 @@ export default function Home() {
 
     <StatsBand />
     <WhyIdeal />
+    <OfislerTeaser />
+    <IletisimCta />
     </>
   )
 }
