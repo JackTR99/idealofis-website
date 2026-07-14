@@ -106,3 +106,26 @@ export const OFISLER: Ofis[] = [
     ],
   },
 ]
+
+// MOCK — Ofis 2 ve 4 ölçüleri placeholder olduğu için aralık da doğrulanmamış sayılır.
+const OLCU_DOGRULANDI: Record<string, boolean> = {
+  'ofis-1': true,
+  'ofis-2': false,
+  'ofis-3': true,
+  'ofis-4': false,
+}
+
+export const olcuDogrulandi = (id: string) => OLCU_DOGRULANDI[id] === true
+
+/** Ölçüsü doğrulanmamış ofis tipleri (tabloda "örnek veri" işaretiyle gösterilir). */
+export const OLCU_BEKLEYEN: Ofis[] = OFISLER.filter((o) => !olcuDogrulandi(o.id))
+
+/* m² ARALIĞI — TEK KAYNAK.
+   Projede 7 ofis tipi var; sitede şimdilik 4 tanesi gösteriliyor. Bu yüzden aralık
+   gösterilen 4 tipten TÜRETİLMEZ (o zaman 79–125 çıkardı) — katalogdaki tüm tipleri
+   kapsayan gerçek aralık kullanılır. Sitenin her yeri bunu kullanmalı. */
+export const M2_ARALIK = '68–125'
+export const M2_ARALIK_TAM = '68 – 125 m²'
+
+/** Aralığın uçlarını veren ofislerden biri bile doğrulanmadıysa aralık MOCK'tur. */
+export const M2_MOCK = false

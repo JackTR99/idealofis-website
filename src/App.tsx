@@ -3,7 +3,13 @@ import Layout from './components/Layout'
 import UnderConstruction from './pages/UnderConstruction'
 import Home from './pages/Home'
 import Ofislerimiz from './pages/Ofislerimiz'
+import NedenIdeal from './pages/NedenIdeal'
+import Hakkimizda from './pages/Hakkimizda'
+import Iletisim from './pages/Iletisim'
 import { PAGES, LEGAL_PAGES } from './data/pages'
+
+// hazır sayfalar — kalanlar UnderConstruction'a düşer
+const HAZIR = ['/ofislerimiz', '/neden-ideal', '/hakkimizda', '/iletisim']
 
 function App() {
   return (
@@ -11,7 +17,10 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="/ofislerimiz" element={<Ofislerimiz />} />
-        {PAGES.filter((p) => p.path !== '/ofislerimiz').map((p) => (
+        <Route path="/neden-ideal" element={<NedenIdeal />} />
+        <Route path="/hakkimizda" element={<Hakkimizda />} />
+        <Route path="/iletisim" element={<Iletisim />} />
+        {PAGES.filter((p) => !HAZIR.includes(p.path)).map((p) => (
           <Route
             key={p.path}
             path={p.path}
