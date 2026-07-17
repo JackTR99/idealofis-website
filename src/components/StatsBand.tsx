@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Buildings, Ruler, Stack, Car, type Icon as PhIcon } from '@phosphor-icons/react'
+import { Buildings, Car, Blueprint, Storefront, type Icon as PhIcon } from '@phosphor-icons/react'
 
 const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
 
@@ -12,16 +12,16 @@ function reduceMotion() {
 
 type Stat = {
   Icon: PhIcon
-  value: number | string // sayı → 0'dan sayar; metin (aralık) → iki uçtan sayar
+  value: number // 0'dan hedefe sayar
   suffix?: string
   label: string
 }
 
 const STATS: Stat[] = [
   { Icon: Buildings, value: 102, label: 'Ofis' },
-  { Icon: Ruler, value: '68–125', suffix: ' m²', label: 'Metrekare seçenekleri' },
-  { Icon: Stack, value: 8, label: 'Katlı butik bina' },
-  { Icon: Car, value: 3, label: 'Katlı otopark + vale' },
+  { Icon: Car, value: 102, suffix: ' adet', label: 'Otopark' },
+  { Icon: Blueprint, value: 12000, suffix: ' m²', label: 'Toplam inşaat alanı' },
+  { Icon: Storefront, value: 2000, suffix: ' m²', label: 'Toplam dükkan alanı' },
 ]
 
 const COUNT_DUR = 1400 // ms — tüm sayaçlar aynı süre → aynı anda biter
@@ -46,39 +46,7 @@ function Counter({ end, run }: { end: number; run: boolean }) {
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [run, end])
-  return <>{n}</>
-}
-
-/* "68–125" gibi aralığı iki uçtan aynı anda sayar */
-function RangeCounter({ text, run }: { text: string; run: boolean }) {
-  const [lo, hi] = text.split(/[–-]/).map((v) => parseInt(v, 10))
-  const [a, setA] = useState(0)
-  const [b, setB] = useState(0)
-  useEffect(() => {
-    if (!run) return
-    if (reduceMotion()) {
-      setA(lo)
-      setB(hi)
-      return
-    }
-    let raf = 0
-    let start = 0
-    const tick = (t: number) => {
-      if (!start) start = t
-      const p = Math.min(1, (t - start) / COUNT_DUR)
-      const e = 1 - Math.pow(1 - p, 3)
-      setA(Math.round(e * lo))
-      setB(Math.round(e * hi))
-      if (p < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [run, lo, hi])
-  return (
-    <>
-      {a}–{b}
-    </>
-  )
+  return <>{n.toLocaleString('tr-TR')}</>
 }
 
 /* etiketi harf harf yazan daktilo efekti (yer kaydırmadan) */
@@ -178,16 +146,14 @@ export default function StatsBand() {
                 </span>
               </span>
 
-              {/* rakam aşağıdan yükselir + 0'dan sayar (hepsi aynı anda biter) */}
+              {/* rakam aşağıdan yükselir + 0'dan sayar (hepsi aynı anda biter);
+                  whitespace-nowrap: suffix ("&nbsp;m²") dar sütunda alt satıra kaçıp
+                  çizgi/etiket hizasını bozmasın diye rakam satırı tek satır garantili */}
               <p
-                className="mt-4 text-3xl font-semibold tabular-nums text-ink sm:text-4xl"
+                className="mt-4 whitespace-nowrap text-3xl font-semibold tabular-nums text-ink sm:text-4xl"
                 style={numFx}
               >
-                {typeof s.value === 'number' ? (
-                  <Counter end={s.value} run={countRun} />
-                ) : (
-                  <RangeCounter text={s.value} run={countRun} />
-                )}
+                <Counter end={s.value} run={countRun} />
                 {s.suffix ? <span className="text-xl font-medium text-muted">{s.suffix}</span> : null}
               </p>
 
@@ -198,8 +164,9 @@ export default function StatsBand() {
                 style={tickFx}
               />
 
-              {/* etiket: daktilo efekti */}
-              <p className="mt-3 text-sm text-muted">
+              {/* etiket: daktilo efekti; min-h-10 = iki satır kapasitesi →
+                  bir etiket sarsa da dört kutunun toplam yüksekliği eşit kalır */}
+              <p className="mt-3 min-h-10 text-sm text-muted">
                 <Typewriter text={s.label} run={shown} delay={0.85} reduce={reduce} />
               </p>
             </div>

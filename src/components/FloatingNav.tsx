@@ -171,32 +171,61 @@ export default function FloatingNav() {
     }
   }, [refract])
 
-  // A: navbar koyu hero'nun üstündeyken içerik beyaza döner
-  const [onHero, setOnHero] = useState(true)
+  // A: navbar koyu zeminin üstündeyken içerik beyaza döner.
+  // Koyu zemin = hero ([data-glass-bg], akış aynen korunur) + sayfa içi koyu
+  // bantlar ([data-nav-dark]: IletisimCta, Footer, bg-ink panolar).
+  // Örnekleme çizgisi = barın dikey merkezi (top-7=28px + 50px/2 = 53px):
+  // koyu bölge barın ortasını geçtiği an tema döner; böylece sayfa sonunda koyu
+  // bant barın hemen ALTINDA durunca (ör. anasayfa dibinde CTA üstü 84px'te)
+  // beyaz-üstüne-beyaz kalınmaz. Bir koyu bölge bu çizgiyi kesiyorsa
+  // KOYU-ZEMİN teması (yazılar beyaz), değilse açık tema (ink).
+  const [onDark, setOnDark] = useState(true)
   useEffect(() => {
-    const check = () => {
-      const hero = document.querySelector('[data-glass-bg]')
-      if (!hero) return setOnHero(false)
-      setOnHero(hero.getBoundingClientRect().bottom > 88)
+    const NAV_LINE = 53
+    const compute = () => {
+      const zones = document.querySelectorAll('[data-glass-bg], [data-nav-dark]')
+      let dark = false
+      zones.forEach((el) => {
+        const r = el.getBoundingClientRect()
+        if (r.top < NAV_LINE && r.bottom > NAV_LINE) dark = true
+      })
+      setOnDark(dark)
     }
-    check()
-    window.addEventListener('scroll', check, { passive: true })
-    window.addEventListener('resize', check)
+    // ilk hesap SENKRON: gizli sekmede rAF donuk kalır, bar yanlış temada açılmasın
+    compute()
+    // scroll/resize: rAF ile tek kareye indirgenmiş güncelleme
+    let raf = 0
+    const schedule = () => {
+      if (raf) return
+      raf = window.requestAnimationFrame(() => {
+        raf = 0
+        compute()
+      })
+    }
+    // sekme geri görünür olunca bekleyen durumu senkron tazele
+    const onVisible = () => {
+      if (!document.hidden) compute()
+    }
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    document.addEventListener('visibilitychange', onVisible)
     return () => {
-      window.removeEventListener('scroll', check)
-      window.removeEventListener('resize', check)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      document.removeEventListener('visibilitychange', onVisible)
+      if (raf) window.cancelAnimationFrame(raf)
     }
   }, [pathname])
 
   // B: her zeminde okunurluk için ince adaptif gölge (kutu değil)
-  const logoShadow = onHero
+  const logoShadow = onDark
     ? 'drop-shadow(0 1px 6px rgba(0,0,0,0.4))'
     : 'drop-shadow(0 1px 3px rgba(255,255,255,0.55))'
-  const textShadow = onHero ? '0 1px 10px rgba(0,0,0,0.4)' : '0 1px 6px rgba(255,255,255,0.6)'
-  // mobil menü rengi: hero üstünde beyaz, açık zeminde koyu (renk uyumu + okunurluk)
-  const menuText = onHero ? 'text-white' : 'text-ink'
-  const menuHover = onHero ? 'hover:bg-white/15' : 'hover:bg-[rgba(20,20,20,0.09)]'
-  const menuPill = onHero ? 'bg-white/10' : 'bg-[rgba(20,20,20,0.05)]'
+  const textShadow = onDark ? '0 1px 10px rgba(0,0,0,0.4)' : '0 1px 6px rgba(255,255,255,0.6)'
+  // mobil menü rengi: koyu zeminde beyaz, açık zeminde koyu (renk uyumu + okunurluk)
+  const menuText = onDark ? 'text-white' : 'text-ink'
+  const menuHover = onDark ? 'hover:bg-white/15' : 'hover:bg-[rgba(20,20,20,0.09)]'
+  const menuPill = onDark ? 'bg-white/10' : 'bg-[rgba(20,20,20,0.05)]'
   const lastIndex = PAGES.length - 1
 
   return (
@@ -288,17 +317,20 @@ export default function FloatingNav() {
             }}
             className="flex items-center lg:mr-8"
           >
-            <span className="relative inline-flex h-[2.8rem] items-center" style={{ filter: logoShadow }}>
+            <span
+              className="relative inline-flex h-[2.8rem] items-center"
+              style={{ filter: logoShadow, transition: 'filter 0.25s ease' }}
+            >
               <img
                 src="/logo-light.png"
                 alt="idealofis"
-                className={`h-[2.8rem] w-auto transition-opacity duration-300 ${onHero ? 'opacity-0' : 'opacity-100'}`}
+                className={`h-[2.8rem] w-auto transition-opacity duration-[250ms] ${onDark ? 'opacity-0' : 'opacity-100'}`}
               />
               <img
                 src="/logo-white.png"
                 alt=""
                 aria-hidden="true"
-                className={`absolute left-0 top-0 h-[2.8rem] w-auto transition-opacity duration-300 ${onHero ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute left-0 top-0 h-[2.8rem] w-auto transition-opacity duration-[250ms] ${onDark ? 'opacity-100' : 'opacity-0'}`}
               />
             </span>
           </Link>
@@ -308,12 +340,12 @@ export default function FloatingNav() {
               <NavLink
                 key={p.path}
                 to={p.path}
-                style={{ textShadow }}
+                style={{ textShadow, transition: 'color 0.25s ease, text-shadow 0.25s ease' }}
                 className={({ isActive }) =>
-                  `whitespace-nowrap text-sm font-[450] tracking-[0.02em] transition-colors ${
+                  `whitespace-nowrap text-sm font-[450] tracking-[0.02em] ${
                     isActive
                       ? 'text-brand'
-                      : onHero
+                      : onDark
                         ? 'text-white/90 hover:text-white'
                         : 'text-ink/80 hover:text-ink'
                   }`
@@ -334,10 +366,10 @@ export default function FloatingNav() {
               filter: logoShadow,
               transform: `translateX(${slideX}px)`,
               transition:
-                'transform 0.35s ease-in-out, color 0.3s ease, filter 0.3s ease',
+                'transform 0.35s ease-in-out, color 0.25s ease, filter 0.25s ease',
               transitionDelay: '0.15s',
             }}
-            className={`relative h-10 w-10 lg:hidden ${onHero ? 'text-white' : 'text-ink'}`}
+            className={`relative h-10 w-10 lg:hidden ${onDark ? 'text-white' : 'text-ink'}`}
           >
             <span className="relative mx-auto flex size-6 flex-col items-center justify-center gap-[4px]">
               {/* çizgiler: açılışta tek tek aşağı düşer, kapanışta geri yükselir */}

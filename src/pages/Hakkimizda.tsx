@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import BrandWord from '../components/BrandWord'
 import IletisimCta from '../components/IletisimCta'
+import { OFISLER } from '../data/ofisler'
 
 /* ─────────────────────────────────────────────────────────────
    ORTAK MOTOR — WhyIdeal.tsx deseni (IntersectionObserver + inline style)
@@ -153,8 +154,8 @@ const MOCK = {
   // MOCK — Kaan gerçeğini verecek (kurumsal anlatı)
   ozluturk: {
     spot: 'Bir ofise karar vermeden önce, arkasındaki markayı tanımaya hakkınız var.',
-    p1: 'Özlütürk, İzmir’de konut ve ofis projeleri geliştiren bir yapı markası. Aynı anda çok sayıda şantiye yürütmek yerine az sayıda projeyle ilerlemeyi tercih ediyor; böylece bir binanın planlamasından teslimine kadar aynı ekip işin başında kalıyor.',
-    p2: 'Bizim için bir binanın gerçek sınavı teslim günü değil, beşinci yılıdır. Bu yüzden görünmeyen işlere — altyapıya, yalıtıma, ortak alanların bakımına — görünen işler kadar zaman ayırıyoruz. Teslimden sonra da binayla ilgilenmeye devam ediyoruz.',
+    p1: 'Özlütürk, İzmir’de konut ve ofis projeleri geliştiren bir yapı markası. Aynı anda çok sayıda şantiye yürütmek yerine az sayıda projeyle ilerlemeyi tercih ediyor. Böylece bir binanın planlamasından teslimine kadar aynı ekip işin başında kalıyor.',
+    p2: 'Bizim için bir binanın gerçek sınavı teslim günü değil, beşinci yılıdır. Bu yüzden altyapı, yalıtım ve ortak alanların bakımı gibi görünmeyen işlere görünen işler kadar zaman ayırıyoruz. Teslimden sonra da binayla ilgilenmeye devam ediyoruz.',
     p3Son:
       ', bu yaklaşımın ofis tarafındaki karşılığı: Bayraklı’da, adliyenin ve toplu ulaşımın yanı başında, butik ölçekli bir ofis binası. Otopark, ortak alanlar ve hizmetler bu ölçeğe göre planlandı.',
     imzaAd: 'Özlütürk',
@@ -203,7 +204,8 @@ const MOCK = {
 const KUNYE: { Icon: PhIcon; terim: string; deger: string }[] = [
   { Icon: Certificate, terim: 'Marka', deger: 'Özlütürk' },
   { Icon: MapPin, terim: 'Konum', deger: 'Bayraklı / İzmir' },
-  { Icon: SquaresFour, terim: 'Plan tipleri', deger: '4 farklı tip' },
+  // Değer tek kaynaktan türetilir: src/data/ofisler.ts içindeki OFISLER listesi (7 tip).
+  { Icon: SquaresFour, terim: 'Plan tipleri', deger: `${OFISLER.length} farklı tip` },
   // TESLİM SATIRI — Kaan gerçek tarihi verince şu satır açılır (CalendarCheck zaten
   // içeri alınmış durumda, Değerler kartlarında kullanılıyor):
   // { Icon: CalendarCheck, terim: 'Teslim', deger: '<Kaan verecek>' },

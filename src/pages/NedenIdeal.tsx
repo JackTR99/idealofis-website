@@ -54,6 +54,9 @@ import {
    Site genelinde tek kaynak: src/data/iletisim.ts → Kaan gerçek numarayı verince
    YALNIZ o dosya güncellenir, bu sayfanın kapanış CTA'sı da kendiliğinden düzelir. */
 import { TEL, TEL_HREF, WA_HREF, SATIS_OFISI_KISA, CALISMA_SAATLERI_KISA } from '../data/iletisim'
+/* Mesafe/süre değerleri BU DOSYADA YAZILMAZ — tek kaynak src/data/mesafeler.ts
+   (OSRM yaya + Valhalla gerçek rota ölçümü). */
+import { MESAFELER as MESAFE_VERI, MESAFE, type MesafeId } from '../data/mesafeler'
 
 /* ════════════════════════════════════════════════════════════════════════
    MOCK — Kaan gerçeğini verecek
@@ -74,51 +77,37 @@ const KUNYE_MOCK = {
   jenerator: 'Ortak alanlar için jeneratör',
 }
 
-/* ── m² — DOĞRULANMAMIŞ ÖLÇÜLER ───────────────────────────────────────────
-   Aralık BU DOSYADA HESAPLANMAZ: tek kaynak src/data/ofisler.ts (M2_ARALIK,
-   M2_ARALIK_TAM, M2_MOCK). Ofis 2 ve 4 ölçüleri orada PLACEHOLDER olduğu için
-   aralığın İKİ UCU da (min = Ofis 4, max = Ofis 2) doğrulanmamış → M2_MOCK:
-     • doğrulanmamış tipler MOCK_GOSTER=false iken tablodan düşer,
-       true iken görünür MOCK işareti alır (<MockIsaret />),
-     • Kaan gerçek ölçüleri verip bayrakları çevirince işaretler kendiliğinden düşer.
-   ⚠️ KAAN'A SORU (ofisler.ts'te ayrıntısı yazılı): bu sayfa ofisler.ts'ten türetip
-      "79–125" diyor, sitenin geri kalanı elle "68–125" yazıyor (StatsBand, WhyIdeal,
-      OfislerTeaser, Hakkimizda). 68 bu dosyadaki hiçbir sütuna denk gelmiyor → biri
-      yanlış. Doğru rakam gelince ofisler.ts güncellenir ve o dört dosya da M2_ARALIK'ı
-      oradan okur; hiçbir sayfa m² aralığını elle yazmaz.
+/* ── m² ÖLÇÜLERİ — BU DOSYADA YAZILMAZ ────────────────────────────────────
+   Tek kaynak src/data/ofisler.ts (OFISLER, M2_ARALIK, M2_ARALIK_TAM, M2_MOCK).
+   17 Tem 2026: 7 tipin tamamı katalog PDF (s.19–22) ile doğrulandı → M2_MOCK=false,
+   OLCU_BEKLEYEN boş. Aşağıdaki filtre/işaret mekanizması yine de KORUNUR: ileride
+   doğrulanmamış bir ölçü eklenirse işaretleme kendiliğinden devreye girer.
    ─────────────────────────────────────────────────────────────────────── */
 const OLCU_BEKLEYEN_METIN = OLCU_BEKLEYEN.map((o) => o.ad).join(' ve ')
 const OFISLER_GOSTERILEN = OFISLER.filter((o) => MOCK_GOSTER || olcuDogrulandi(o.id))
 
-/* ── MESAFELER (GERÇEK) ───────────────────────────────────────────────────
-   TEK GERÇEK VERİ: `metre`. Görünen mesafe metni, yürüme süresi ve oran çubuğunun
-   yüzdesi HEP ondan türetilir → mesafe değişince üçü birden değişir, desenkron olamaz.
-     • süre: ~80 m/dk ortalama yürüme hızı (TÜRETİLMİŞ, ÖLÇÜLMEDİ)
-     • oran: en uzak nokta %100 kabul edilir
+/* ── MESAFELER — BU DOSYADA YAZILMAZ ──────────────────────────────────────
+   TEK KAYNAK: src/data/mesafeler.ts (OSRM yaya + Valhalla gerçek rota ölçümü,
+   17 Tem 2026). Mesafe metni ve süre oradan gelir; burada yalnız iki şey türetilir:
+     • ikon eşlemesi (görsel karar, veri değil)
+     • oran çubuğu yüzdesi (en uzak nokta %100 kabul edilir)
    Haritadaki işaretçiler src/components/LokasyonHarita.tsx içinde tanımlı;
    İstinaf'ın harita koordinatı YOK → haritada çizilmiyor, yalnız listede.
    ─────────────────────────────────────────────────────────────────────── */
-const YURUME_HIZI = 80 // m/dk
+const MESAFE_IKON: Record<MesafeId, PhIcon> = {
+  adliye: Bank,
+  metro: Train,
+  istinaf: Gavel,
+  izban: TrainRegional,
+}
 
-// metre → görünen metin: 1.000 m altı "400 m", üstü "1,1 km" (Türkçe ondalık virgül)
-const mesafeMetni = (metre: number) =>
-  metre < 1000 ? `${metre} m` : `${(metre / 1000).toFixed(1).replace('.', ',')} km`
-const sureMetni = (metre: number) => `yaklaşık ${Math.round(metre / YURUME_HIZI)} dk yürüme`
+const EN_UZAK = Math.max(...MESAFE_VERI.map((m) => m.mesafeMetre))
 
-const MESAFELER_HAM: { id: string; Icon: PhIcon; ad: string; metre: number }[] = [
-  { id: 'adliye', Icon: Bank, ad: 'Adalet Sarayı', metre: 400 },
-  { id: 'metro', Icon: Train, ad: 'Sanayi Metro', metre: 550 },
-  { id: 'istinaf', Icon: Gavel, ad: 'İstinaf Mahkemeleri', metre: 800 },
-  { id: 'izban', Icon: TrainRegional, ad: 'İzban Salhane', metre: 1100 },
-]
-
-const EN_UZAK = Math.max(...MESAFELER_HAM.map((m) => m.metre))
-
-const MESAFELER = MESAFELER_HAM.map((m) => ({
+const MESAFELER = MESAFE_VERI.map((m) => ({
   ...m,
-  mesafe: mesafeMetni(m.metre),
-  sure: sureMetni(m.metre),
-  oran: Math.round((m.metre / EN_UZAK) * 100),
+  Icon: MESAFE_IKON[m.id],
+  sure: `yaklaşık ${m.sureDk} dk yürüme`,
+  oran: Math.round((m.mesafeMetre / EN_UZAK) * 100),
 }))
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -458,23 +447,66 @@ function Acilis() {
    ════════════════════════════════════════════════════════════════════════ */
 const LOKASYON_ANLATI: { baslik: string; metin: string | null }[] = [
   {
-    baslik: 'Hukukun yanı başında',
+    baslik: 'Resmi kurumların yanı başında',
     metin:
-      'Adalet Sarayı ve İstinaf Mahkemeleri yürüme mesafesinde. Duruşma günü, dosya teslimi ve müvekkil görüşmesi için ofisten yürüyerek çıkabilirsiniz.',
+      'Adalet Sarayı ve İstinaf Mahkemeleri yürüme mesafesinde. Resmi bir işlem ya da evrak teslimi gerektiğinde araca binmeden yürüyerek gidip dönebilirsiniz.',
   },
   {
     baslik: 'İki ayrı raylı hat',
     metin:
-      'Sanayi Metro istasyonu ve İzban Salhane durağı yürüme mesafesinde. Ekibiniz ve müvekkilleriniz şehrin farklı yakalarından raylı sistemle gelebiliyor.',
+      'Sanayi Metro istasyonu kısa bir yürüyüşle, İzban Salhane durağı da yürüyerek ulaşılabilir uzaklıkta. Ekibiniz ve misafirleriniz şehrin farklı yakalarından raylı sistemle gelebiliyor.',
   },
   // marka yazısı içerdiği için metni JSX'te yazılıyor
   { baslik: 'Bayraklı’nın iş hattı', metin: null },
 ]
 
+/* ── MESAFE SAYACI — StatsBand'deki Counter/COUNT_DUR deseninin kardeşi ──────
+   Süre mantığı aynı: HERKES aynı 1400 ms'de biter → yakın nokta yavaş, uzak
+   nokta hızlı sayar ama hepsi AYNI ANDA durur. Easing de aynı (1-(1-p)^3).
+   Fark: animasyon boyunca METRE cinsinden sayar ("1.240 m" — tr-TR binlik
+   ayraçlı) ve bitişte mesafeler.ts'in etiketine oturur ("1,5 km", "1 km"…) →
+   DOM'daki final değer = mesafeEtiket, birebir. Süre etiketi ("10 dk yürüme")
+   sayaca DAHİL DEĞİL, sabit durur. reduced-motion → rAF hiç kurulmaz, direkt
+   final etiket basılır. */
+const SAYAC_SURE = 1400 // ms — StatsBand.COUNT_DUR ile aynı değer ve mantık
+
+function MesafeSayac({
+  metre,
+  etiket,
+  run,
+  reduce,
+}: {
+  metre: number
+  etiket: string
+  run: boolean
+  reduce: boolean
+}) {
+  const [p, setP] = useState(0) // ilerleme 0→1; 1'e varınca ham metre yerine etiket basılır
+  useEffect(() => {
+    if (!run || reduce) return
+    let raf = 0
+    let start = 0
+    const tick = (t: number) => {
+      if (!start) start = t
+      const oran = Math.min(1, (t - start) / SAYAC_SURE)
+      setP(oran)
+      if (oran < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [run, reduce])
+  if (reduce || p >= 1) return <>{etiket}</>
+  const eased = 1 - Math.pow(1 - p, 3) // StatsBand ile aynı ease-out cubic
+  return <>{`${Math.round(eased * metre).toLocaleString('tr-TR')} m`}</>
+}
+
 function Lokasyon() {
-  // `shown` ŞART: oran çubuklarının genişliği buna bağlı (0% → oran%). Yoksa
-  // genişlik ilk boyamada zaten hedefinde olur ve CSS transition hiç tetiklenmez.
-  const { ref, shown, reduce, reveal } = useReveal<HTMLElement>(0.12)
+  const { ref, reduce, reveal } = useReveal<HTMLElement>(0.12)
+  /* Yürüme kartının KENDİ tetikleyicisi (threshold 0.35): oran çubukları ve
+     sayaçlar bölümün genel reveal'ına değil, kartın gerçekten görünür olmasına
+     bağlı — ikisi de AYNI IO'dan aynı anda başlar. Gizli-sekme tuzağının da
+     çözümü bu: IO görünürlük şartı sağlanmadan rAF hiç kurulmaz. */
+  const { ref: kartRef, shown: kartAcik } = useReveal<HTMLDivElement>(0.35)
 
   return (
     <section
@@ -488,13 +520,12 @@ function Lokasyon() {
           <BolumBasligi
             id="lokasyon-baslik"
             etiket="Lokasyon"
-            baslik="Adliyeye 400 Metre, Metroya 550"
+            baslik="Adliyeye 10 Dakika, Metroya 9"
             aciklama={
               <>
-                <BrandWord />, Bayraklı’da adliye hattı ile ulaşım hattının kesiştiği noktada
-                duruyor.
-                Duruşma, dosya teslimi, müvekkil görüşmesi ya da metroya iniş için araca binmeniz
-                gerekmiyor; günlük işlerin önemli bir bölümü yürüme mesafesinde kalıyor.
+                <BrandWord />, Bayraklı’da şehrin resmi kurumları ile ulaşım hattının kesiştiği
+                noktada duruyor. Toplantı, resmi işlem ya da metroya iniş için araca binmeniz
+                gerekmiyor. Günlük işlerin önemli bir bölümü yürüme mesafesinde kalıyor.
               </>
             }
           />
@@ -510,8 +541,17 @@ function Lokasyon() {
               basılmıyorlar (bilgi kaybı yok: mesafeler yandaki mesafe kartında yazılı).
               Kararı artık BİLEŞENİN PROP'U veriyor; eskiden burada [&_.backdrop-blur] ile bir
               yardımcı sınıfın ADINA bağlanılıyordu → sınıf değişince çipler sessizce geri gelirdi.
+
+              lg boyut: SABİT yükseklik (h-[520px]), aspect DEĞİL. Eski lg:aspect-[4/3] +
+              lg:min-h-[520px] birleşimi tuzaktı: aspect-ratio min-height'i min-width'e
+              taşıyor (520×4/3 ≈ 693px), kap ~632px'lik kart kolonundan taşıyor ve kartın
+              overflow-hidden'ı sağ kenarı DÜZ kesiyordu (Google atıf metni "Terms"süz
+              kalıyordu — atıf bandı kırpılmaz kuralının ihlali). lg:aspect-auto şart:
+              aspect-square açık kalsaydı belirli yükseklikle genişlik orandan hesaplanır,
+              kap 520px kare olurdu. Sahne kadrajını LokasyonHarita'nın kare katmanı
+              (container query, max(100cqw,100cqh)) üstlendiği için kabın oranı serbest.
             */}
-            <div className="relative aspect-square overflow-hidden rounded-[22px] bg-section lg:aspect-[4/3] lg:min-h-[520px]">
+            <div className="relative aspect-square overflow-hidden rounded-[22px] bg-section lg:aspect-auto lg:h-[520px]">
               <LokasyonHarita hep cipler="smUstu" />
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line px-2 pt-3">
@@ -524,7 +564,11 @@ function Lokasyon() {
           </div>
 
           {/* MESAFE KARTI — tıklanabilir değil: hover/focus vurgusu yok */}
-          <div className={`${CARD_SABIT} flex flex-col justify-center p-6 sm:p-7`} style={reveal(2)}>
+          <div
+            ref={kartRef}
+            className={`${CARD_SABIT} flex flex-col justify-center p-6 sm:p-7`}
+            style={reveal(2)}
+          >
             <h3 className="flex items-center gap-2 text-lg font-semibold text-ink">
               <PersonSimpleWalk
                 weight="duotone"
@@ -535,7 +579,7 @@ function Lokasyon() {
               Yürüme mesafesindeki dört nokta
             </h3>
             <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              Süreler ortalama yürüme hızıyla hesaplanmış yaklaşık değerlerdir.
+              Mesafeler ve süreler yürüme rotası üzerinden ölçülmüş yaklaşık değerlerdir.
             </p>
 
             {/* role="list" ŞART: Tailwind Preflight ul'den list-style'ı kaldırıyor ve
@@ -552,20 +596,31 @@ function Lokasyon() {
                       <p className="mt-0.5 text-xs text-muted">{m.sure}</p>
                     </div>
                     <p className="whitespace-nowrap text-base font-semibold tabular-nums text-brand">
-                      {m.mesafe}
+                      <MesafeSayac
+                        metre={m.mesafeMetre}
+                        etiket={m.mesafeEtiket}
+                        run={kartAcik}
+                        reduce={reduce}
+                      />
                     </p>
                   </div>
-                  {/* oran çubuğu — w-full YOK (ml-[54px] + w-full = yatay taşma) */}
+                  {/* oran çubuğu — w-full YOK (ml-[54px] + w-full = yatay taşma).
+                      Dolum width ile DEĞİL scaleX ile: genişlik hedef oranda sabit,
+                      çubuk soldan sağa (origin-left) büyür → layout tetiklenmez.
+                      Sayaçla AYNI kart-IO'sundan başlar; 300 ms taban gecikmesi
+                      önce rakamların saymaya başlamasına göz payı bırakır, üstüne
+                      satır başına 90 ms hafif stagger biner (son çubuk 1.470 ms'de,
+                      sayaçların 1.400 ms bitişiyle aynı nefeste durur). */}
                   <div aria-hidden="true" className="ml-[54px] mt-2.5 h-[3px] rounded-full bg-line">
                     <div
-                      className="h-full rounded-full bg-brand/70"
+                      className="h-full origin-left rounded-full bg-brand/70"
                       style={
                         reduce
                           ? { width: `${m.oran}%` } // hareket kapalı → çubuk anında dolu
                           : {
-                              width: shown ? `${m.oran}%` : '0%',
-                              transition: `width 0.8s ${EASE}`,
-                              transitionDelay: `${300 + i * 90}ms`,
+                              width: `${m.oran}%`,
+                              transform: kartAcik ? 'scaleX(1)' : 'scaleX(0)',
+                              transition: `transform 0.9s ${EASE} ${300 + i * 90}ms`,
                             }
                       }
                     />
@@ -575,7 +630,7 @@ function Lokasyon() {
             </ul>
 
             <p className="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-muted">
-              En uzak nokta bile yaklaşık 15 dakikalık bir yürüyüş.
+              En uzak nokta bile yaklaşık 20 dakikalık bir yürüyüş.
             </p>
           </div>
         </div>
@@ -589,8 +644,8 @@ function Lokasyon() {
               <p className="mt-2 text-sm leading-relaxed text-muted">
                 {b.metin ?? (
                   <>
-                    Bölge, İzmir’in kurumsal ofis hattı olarak gelişmeye devam ediyor. <BrandWord />{' '}
-                    bu hattın adliye tarafında, yürüme mesafesinde konumlanıyor.
+                    Bölge, İzmir’in kurumsal iş merkezi olarak gelişmeye devam ediyor. <BrandWord />{' '}
+                    bu gelişimin tam ortasında, ulaşımı kolay bir noktada konumlanıyor.
                   </>
                 )}
               </p>
@@ -609,19 +664,19 @@ function Lokasyon() {
      balkon m² → gelirse M2'ye tek cümle
      cephe/doğrama, teslim yılı → teknik künyenin işi
    ════════════════════════════════════════════════════════════════════════ */
-// m² aralığı MOCK (uçları placeholder) → MOCK_GOSTER=false iken şeritten düşer.
+// Dört değer de GERÇEK (katalog PDF + Kaan'ın verdiği resmi rakamlar) → mock yok.
 // Sütun sayısı ve ayraçlar öğe sayısına göre kendini kurar (aşağıdaki grid).
 const OLCEK_TUM: { deger: string; etiket: string; mock?: boolean }[] = [
   { deger: '8', etiket: 'Kat' },
   { deger: '102', etiket: 'Ofis' },
-  { deger: M2_ARALIK, etiket: 'm² genel brüt', mock: M2_MOCK },
-  { deger: '4', etiket: 'Plan tipi' },
+  { deger: '12.000', etiket: 'm² inşaat' },
+  { deger: '7', etiket: 'Plan tipi' },
 ]
 const OLCEK = OLCEK_TUM.filter((o) => MOCK_GOSTER || !o.mock)
 
 const M1_MADDELER = [
   'Her planda çalışma odası, mutfak nişi ve WC ayrı çözülmüş',
-  'Dört plan tipinin ölçüleri teknik künyede tek tek yazılı',
+  'Yedi plan tipinin ölçüleri teknik künyede tek tek yazılı',
 ]
 
 function Mimari() {
@@ -634,8 +689,12 @@ function Mimari() {
           <BolumBasligi
             id="mimari-baslik"
             etiket="Mimari & Teknik"
-            baslik="8 Katlı Butik Bir Bina"
-            aciklama="Sekiz kat, 102 ofis. Bu ölçek büyük görünmek için değil, gün boyu rahat çalışabilmek için seçildi: yüksek tavanlar hacmi genişletiyor, açılabilir balkonlar havayı tazeliyor, dört farklı plan farklı ekip büyüklüklerine yer bırakıyor."
+            baslik={
+              <>
+                8 Katlı <BrandWord />
+              </>
+            }
+            aciklama="Sekiz kat, 102 ofis. Bu ölçek büyük görünmek için değil, gün boyu rahat çalışabilmek için seçildi: yüksek tavanlar hacmi genişletiyor, açılabilir balkonlar havayı tazeliyor, yedi farklı plan farklı ekip büyüklüklerine yer bırakıyor."
           />
         </div>
 
@@ -741,7 +800,7 @@ function Mimari() {
                     <p className="mt-2 text-sm leading-relaxed text-muted">
                       Balkon, kapalı geçen bir ofis gününü bölen en basit ara. Kapıyı açıp iki
                       dakika dışarı çıkmak; bir telefon görüşmesi, bir kahve ya da sadece temiz hava
-                      için yeterli. Dört plan tipinin dördünde de balkon var.
+                      için yeterli. Yedi plan tipinin yedisinde de balkon var.
                     </p>
                   </div>
                 </div>
@@ -829,17 +888,19 @@ const KUNYE_GRUPLARI: { etiket: string; satirlar: KunyeSatir[] }[] = [
       { k: 'Marka', v: 'Özlütürk' },
       { k: 'Kat sayısı', v: '8 kat' },
       { k: 'Toplam ofis', v: '102 ofis' },
-      { k: 'Ofis tipi', v: '4 tip (Ofis 1–4)' },
-      // OFISLER'den hesaplanır; uçları placeholder olduğu için MOCK (bkz. M2_MOCK)
+      { k: 'Ofis tipi', v: '7 tip (Ofis 1–7)' },
+      // ofisler.ts'ten gelir; katalog beyanı (PDF s.9), M2_MOCK=false → işaret düşer
       { k: 'Ofis büyüklükleri', v: M2_ARALIK_TAM, mock: M2_MOCK },
-      { k: 'Balkon', v: 'Dört tipte de var (açılabilir)' },
+      { k: 'Toplam inşaat alanı', v: '12.000 m²' },
+      { k: 'Dükkan alanı', v: '2.000 m²' },
+      { k: 'Balkon', v: 'Yedi tipte de var (açılabilir)' },
       { k: 'Teslim', v: KUNYE_MOCK.teslim, mock: true },
     ],
   },
   {
     etiket: 'Donanım ve Altyapı',
     satirlar: [
-      { k: 'Otopark', v: '3 katlı otopark (vale hizmetli)' },
+      { k: 'Otopark', v: '102 araçlık, 3 katlı otopark (vale hizmetli)' },
       { k: 'Asansör', v: KUNYE_MOCK.asansor, mock: true },
       { k: 'Tavan yüksekliği', v: KUNYE_MOCK.tavanYuksekligi, mock: true },
       { k: 'İklimlendirme', v: KUNYE_MOCK.iklimlendirme, mock: true },
@@ -877,7 +938,7 @@ function TeknikKunye() {
             id="kunye-baslik"
             etiket="Teknik Bilgiler"
             baslik="Teknik Künye"
-            aciklama="Karşılaştırma yapmak için gereken sayılar tek yerde: binanın teknik bilgileri ve dört ofis tipinin net, brüt, genel brüt ölçüleri."
+            aciklama="Karşılaştırma yapmak için gereken sayılar tek yerde: binanın teknik bilgileri ve yedi ofis tipinin net, brüt, genel brüt ölçüleri."
           />
         </div>
 
@@ -940,7 +1001,7 @@ function TeknikKunye() {
               <h3 className="text-lg font-semibold text-ink lg:text-xl">Ofis Tipleri ve Ölçüler</h3>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-muted">
-              Dört tip; net, brüt ve genel brüt ölçüler. Tüm değerler m² cinsindendir.
+              Yedi tipin net, brüt ve genel brüt ölçüleri. Tüm değerler m² cinsindendir.
             </p>
 
             {/* ≥sm: gerçek tablo */}
@@ -1279,6 +1340,7 @@ function Guvenlik() {
       ref={ref}
       id="guvenlik"
       aria-labelledby="guvenlik-baslik"
+      data-nav-dark
       className="scroll-mt-32 bg-ink"
     >
       <div className="mx-auto max-w-6xl px-5 py-24 lg:py-28">
@@ -1426,15 +1488,16 @@ const DEGER_KARTLARI = [
     Icon: Ruler,
     baslik: 'Doğru Ölçek',
     metin:
-      'Dört farklı plan tipi; iki kişilik bir bürodan yerleşik bir ekibe kadar farklı ihtiyaçlara uyan bir ölçek aralığı. Hangi planın size uyduğunu ölçüleriyle birlikte teknik künyede görebilirsiniz.',
+      'Yedi farklı plan tipi, iki kişilik bir bürodan yerleşik bir ekibe kadar farklı ihtiyaçlara uyan bir ölçek aralığı sunar. Hangi planın size uyduğunu ölçüleriyle birlikte teknik künyede görebilirsiniz.',
   },
 ]
 
 // m² aralığı MOCK (uçları placeholder) → MOCK_GOSTER=false iken şeritten düşer;
 // sütun sayısı öğe sayısına göre kendini kurar.
 const KANIT_TUM: { Icon: PhIcon; ust: string; altSatir: string; mock?: boolean }[] = [
-  { Icon: Bank, ust: '400 m', altSatir: 'Adalet Sarayı' },
-  { Icon: Train, ust: '550 m', altSatir: 'Sanayi Metro' },
+  // mesafe değerleri elle YAZILMAZ — tek kaynak src/data/mesafeler.ts
+  { Icon: Bank, ust: MESAFE.adliye.mesafeEtiket, altSatir: MESAFE.adliye.ad },
+  { Icon: Train, ust: MESAFE.metro.mesafeEtiket, altSatir: MESAFE.metro.ad },
   { Icon: Stack, ust: '102 ofis', altSatir: '8 katlı butik bina' },
   { Icon: Ruler, ust: `${M2_ARALIK} m²`, altSatir: 'Genel brüt aralığı', mock: M2_MOCK },
 ]
@@ -1526,6 +1589,7 @@ function Yatirim() {
 
         {/* KAPANIŞ PANELİ — IletisimCta'nın yerine geçer */}
         <div
+          data-nav-dark
           className="relative mt-5 overflow-hidden rounded-[32px] bg-ink px-6 py-14 text-center sm:px-10 lg:py-16"
           style={reveal(5)}
         >
@@ -1561,7 +1625,7 @@ function Yatirim() {
               Karar vermeden önce planları görün
             </h3>
             <p className="mt-4 text-base leading-relaxed text-page/70">
-              Dört plan tipi, 102 ofis, tek bina. Size uygun olanı önce ekranda inceleyin; sonra
+              Yedi plan tipi, 102 ofis, tek bina. Size uygun olanı önce ekranda inceleyin; sonra
               Bayraklı’da yerinde gezelim.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">

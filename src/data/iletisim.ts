@@ -37,15 +37,18 @@ export const EPOSTA_HREF = `mailto:${EPOSTA}`
 
 /* ── ADRES ───────────────────────────────────────────────────────────────── */
 // MOCK — Kaan gerçeğini verecek (mahalle / sokak / kapı no uydurma)
-export const ADRES = 'Adalet Mah. Manas Bulvarı No: 00, idealofis, 35530 Bayraklı / İzmir'
+// Not: mahalle ve cadde, mesafe araştırmasındaki ters geokodla uyumlu taslağa çekildi
+// (Mansuroğlu Mah., Ankara Cad., 35535 Bayraklı). Kapı no hâlâ yer tutucu.
+export const ADRES = 'Mansuroğlu Mah. Ankara Cad. No: 00, idealofis, 35535 Bayraklı / İzmir'
 // MOCK — satış ofisinin kat bilgisi teyit edilmedi
 export const SATIS_OFISI_NOT = 'Proje alanının içinde, zemin kat.'
 // MOCK — Kaan gerçeğini verecek (kısa cümle; NedenIdeal kapanış panelinde geçer)
 export const SATIS_OFISI_KISA = 'Satış ofisimiz proje içinde, Bayraklı.'
-// MOCK — adres MOCK olduğu için yol tarifi bağlantısı da MOCK;
-// gerçek koordinat gelince destination=<lat>,<lng> yapılacak
+// Koordinat GERÇEK: 38.449961, 27.185122 (Yandex kaydı + site harita pini + katalog
+// çapraz doğrulaması, bkz. mesafe araştırması). Adres METNİ hâlâ MOCK. Kaan gerçek
+// adresi verince yalnız yukarıdaki ADRES sabiti güncellenir, bu bağlantı değişmez.
 export const MAPS_YOL_TARIFI =
-  'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ADRES)
+  'https://www.google.com/maps/dir/?api=1&destination=38.449961,27.185122'
 
 /* ── ÇALIŞMA SAATLERİ ────────────────────────────────────────────────────── */
 export interface CalismaSatiri {

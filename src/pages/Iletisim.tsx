@@ -57,15 +57,17 @@ import {
   GUN_ADLARI,
 } from '../data/iletisim'
 
-// GERÇEK veri (proje kataloğu)
-// TEYİT — kaynakta "İstinaf Mah." yazıyor. "Mahkemesi" mi "Mahallesi" mi belirsiz olduğu için
-// kaynaktaki kısaltma AYNEN korunuyor; Kaan doğrulayınca açılabilir.
-const MESAFELER: { ad: string; mesafe: string; Icon: PhIcon }[] = [
-  { ad: 'Adalet Sarayı', mesafe: '400 m', Icon: Bank },
-  { ad: 'İstinaf Mah.', mesafe: '800 m', Icon: Scales },
-  { ad: 'Sanayi Metro', mesafe: '550 m', Icon: Train },
-  { ad: 'İzban Salhane', mesafe: '1,1 km', Icon: TrainRegional },
-]
+/* ✅ TEK KAYNAK: mesafe adları ve değerleri src/data/mesafeler.ts'ten gelir (ölçülen gerçek
+   yürüme rotaları, Kaan onaylı). Eski katalog değerleri (400 m / 550 m / 800 m / 1,1 km)
+   kuş uçuşuydu, KULLANILMAZ. Bu dosya yalnız ikon eşlemesini tutar. */
+import { MESAFELER, type MesafeId } from '../data/mesafeler'
+
+const MESAFE_IKONLARI: Record<MesafeId, PhIcon> = {
+  adliye: Bank,
+  metro: Train,
+  istinaf: Scales,
+  izban: TrainRegional,
+}
 
 /* Çalışma saatleri, özet cümle ve gün adları: src/data/iletisim.ts (yukarıda import edildi). */
 
@@ -196,7 +198,7 @@ const HIZLI_BILGI: {
   },
   {
     Icon: Buildings,
-    ust: 'Dört ofis tipi',
+    ust: 'Yedi ofis tipi',
     alt: 'Planları yerinde karşılaştırın',
     to: '/ofislerimiz',
     cta: 'Planları İncele',
@@ -523,8 +525,9 @@ function Konum() {
             Nerede Bulunuyoruz?
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted">
-            Bayraklı'dayız: Adalet Sarayı, Sanayi Metro ve İzban Salhane yürüme mesafesinde. Adliye
-            çevresi ve şehir içi ulaşım hatları hemen yanı başınızda.
+            Bayraklı'dayız: Adalet Sarayı ve Sanayi Metro yürüme mesafesinde, raylı sistem
+            alternatifi İzban Salhane de yakınımızda. Adliye çevresi ve şehir içi ulaşım hatları
+            hemen yanı başınızda.
           </p>
           <span aria-hidden="true" className={CIZGI} style={cizgiStil()} />
         </div>
@@ -606,20 +609,25 @@ function Konum() {
             <div className={`${KART} p-6 sm:p-7`} style={reveal(3)}>
               <h3 className="text-lg font-semibold text-ink">Çevredeki Mesafeler</h3>
               <ul className="mt-4 flex flex-col">
-                {MESAFELER.map((m, i) => (
-                  <li
-                    key={m.ad}
-                    className="flex items-center gap-3 border-b border-line py-3 last:border-0"
-                    style={satirStil(i)}
-                  >
-                    <m.Icon weight="duotone" size={18} aria-hidden="true" className="text-brand" />
-                    <span className="flex-1 text-sm font-medium text-ink">{m.ad}</span>
-                    <span className="text-sm font-semibold tabular-nums text-ink">{m.mesafe}</span>
-                  </li>
-                ))}
+                {MESAFELER.map((m, i) => {
+                  const Ikon = MESAFE_IKONLARI[m.id]
+                  return (
+                    <li
+                      key={m.id}
+                      className="flex items-center gap-3 border-b border-line py-3 last:border-0"
+                      style={satirStil(i)}
+                    >
+                      <Ikon weight="duotone" size={18} aria-hidden="true" className="text-brand" />
+                      <span className="flex-1 text-sm font-medium text-ink">{m.ad}</span>
+                      <span className="text-sm font-semibold tabular-nums text-ink">
+                        {m.mesafeEtiket}
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
               <p className="mt-4 text-xs leading-relaxed text-muted">
-                Mesafeler yaklaşık değerlerdir; bilgi amaçlıdır.
+                Mesafeler yaklaşık değerlerdir ve bilgi amaçlıdır.
               </p>
             </div>
           </div>
@@ -902,7 +910,7 @@ function AltNot() {
   return (
     <section ref={ref} aria-labelledby="alt-not-baslik" className="bg-page">
       <div className="mx-auto max-w-6xl px-5 pb-28 pt-10 lg:pb-32">
-        <div className="relative overflow-hidden rounded-[28px] bg-ink px-6 py-10 shadow-[0_1px_2px_rgba(20,20,20,0.04),0_28px_60px_-30px_rgba(20,20,20,0.5)] sm:rounded-[36px] sm:px-10 sm:py-12 lg:px-12 lg:py-14">
+        <div data-nav-dark className="relative overflow-hidden rounded-[28px] bg-ink px-6 py-10 shadow-[0_1px_2px_rgba(20,20,20,0.04),0_28px_60px_-30px_rgba(20,20,20,0.5)] sm:rounded-[36px] sm:px-10 sm:py-12 lg:px-12 lg:py-14">
           <img
             src="/building-mark-white.png"
             alt=""

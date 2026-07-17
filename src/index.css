@@ -354,3 +354,91 @@
   .x-stroke-a-in { transform: translate(-50%, -50%) rotate(45deg); }
   .x-stroke-b-in { transform: translate(-50%, -50%) rotate(-45deg); }
 }
+
+/* ---- Anasayfa ofis vitrini: kesintisiz kayan şerit + sıralı alan parlaması ---- */
+
+/* şerit: içerik iki kez render edilir; -%50 = tam bir set genişliği → dikişsiz döngü.
+   Süre JS'te set genişliğinden hesaplanır (~48 px/sn); yalnız görünürken akar. */
+.teaser-serit {
+  animation: teaserAkis var(--teaser-sure, 48s) linear infinite;
+  animation-play-state: paused;
+  will-change: transform;
+}
+.teaser-marquee.is-akan .teaser-serit {
+  animation-play-state: running;
+}
+/* hover / klavye odağı: şerit duraklar — kartlar tıklanabilir kalır */
+.teaser-marquee:hover .teaser-serit,
+.teaser-marquee:focus-within .teaser-serit {
+  animation-play-state: paused;
+}
+@keyframes teaserAkis {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Madde 8 — alan parlaması: alan renginde kontur + %9 saydam dolgu + glow.
+   8 sn'lik döngüde her alan ~1.6 sn görünür kalır; alan başına 2 sn faz farkı →
+   anda TEK alan parlak (çalışma → mutfak → wc → balkon); kart başına ~0.5 sn dalga.
+   is-parla sınıfı teaser görünür olduktan ~1 sn sonra eklenir → ilk açılışta parlama yok. */
+.alan-parla {
+  opacity: 0;
+  filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 7px currentColor);
+}
+.teaser-marquee.is-parla .alan-parla {
+  animation: alanParla 8s linear infinite;
+  animation-delay: var(--parla-gecikme, 0s);
+}
+@keyframes alanParla {
+  0% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  16% {
+    opacity: 1;
+  }
+  22% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .teaser-serit,
+  .teaser-marquee.is-parla .alan-parla {
+    animation: none;
+  }
+}
+
+/* ---- Madde 18 — kubbe noktalar: navbar camı gibi kubbemsi spekülar görünüm ----
+   .ofis-dot (nabız halkası) korunur; kubbe görünümü kompozisyonla eklenir.
+   Taban rengi (alan rengi) inline background-color ile gelir; üst-solda küçük
+   beyaz highlight + altta iç gölge kubbeyi verir, saturate rengi canlandırır. */
+.ofis-kubbe {
+  position: relative;
+  filter: saturate(1.35) brightness(1.05);
+}
+.ofis-kubbe::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.4) 28%, rgba(255, 255, 255, 0) 52%),
+    radial-gradient(circle at 50% 100%, rgba(20, 20, 20, 0.3) 0%, rgba(20, 20, 20, 0) 58%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -1.5px 2.5px rgba(20, 20, 20, 0.32);
+}
+/* seçiliyken: ışıltı zarifçe artar (renkli halo inline box-shadow ile büyür) */
+.ofis-kubbe--secili {
+  filter: saturate(1.55) brightness(1.14);
+}

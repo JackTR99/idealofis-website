@@ -103,13 +103,20 @@ function Sahne({ ofis, aktif, setHover, setSabit }: {
             className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${a.nokta.x}%`, top: `${a.nokta.y}%` }}
           >
+            {/* kubbe nokta: color=alan rengi → nabız halkası (currentColor) alan renginde */}
             <span
-              className="ofis-dot block rounded-full ring-2 ring-white/90 transition-transform duration-300"
+              className={`ofis-dot ofis-kubbe block rounded-full ring-2 ring-white/90 transition-[width,height,box-shadow,filter] duration-300${
+                aktif === a.id ? ' ofis-kubbe--secili' : ''
+              }`}
               style={{
                 backgroundColor: a.renk,
+                color: a.renk,
                 width: aktif === a.id ? 18 : 13,
                 height: aktif === a.id ? 18 : 13,
-                boxShadow: `0 0 0 4px ${a.renk}33, 0 2px 8px rgba(0,0,0,0.35)`,
+                boxShadow:
+                  aktif === a.id
+                    ? `0 0 0 5px ${a.renk}40, 0 0 18px 4px ${a.renk}59, 0 2px 8px rgba(0,0,0,0.35)`
+                    : `0 0 0 4px ${a.renk}33, 0 2px 8px rgba(0,0,0,0.35)`,
               }}
             />
           </button>
@@ -187,7 +194,7 @@ export default function Ofislerimiz() {
                     }`}
                   >
                     <span
-                      className="h-3 w-3 shrink-0 rounded-full ring-2 ring-white"
+                      className="ofis-kubbe h-3 w-3 shrink-0 rounded-full ring-2 ring-white"
                       style={{ backgroundColor: a.renk, boxShadow: `0 0 0 3px ${a.renk}26` }}
                     />
                     <span className="flex-1 text-sm font-medium text-ink">{a.ad}</span>

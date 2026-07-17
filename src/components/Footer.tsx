@@ -3,7 +3,7 @@ import { PAGES, LEGAL_PAGES } from '../data/pages'
 
 export default function Footer() {
   return (
-    <footer className="bg-ink text-white">
+    <footer data-nav-dark className="bg-ink text-white">
       <div className="mx-auto max-w-6xl px-5 py-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">

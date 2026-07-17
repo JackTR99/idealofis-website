@@ -142,7 +142,7 @@ function LokasyonCard({ style }: { style?: CSSProperties }) {
             Şehrin Kalbinde,<br className="hidden sm:block" /> İşin Merkezinde.
           </h3>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted lg:mt-3">
-            Bayraklı’nın yükselen finans ve ticaret bölgesinde; adliye, ulaşım ağları ve iş
+            İzmir’in yükselen finans ve ticaret bölgesinde, adliye, ulaşım ağları ve iş
             merkezlerine dakikalar uzaklıkta.
           </p>
         </div>
@@ -422,11 +422,11 @@ export default function WhyIdeal() {
             ?
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-            Her detay, daha verimli ve prestijli bir iş hayatı için tasarlandı.
+            {"Verimli ve prestijli bir iş hayatı için"}{' '}
+            <span className="font-display font-semibold tracking-tight text-brand">ideal</span>
           </h2>
           <p className="mt-5 text-base italic leading-relaxed text-muted">
-            İyi bir ofis yalnızca çalışılan yer değildir; markanızın, ekibinizin ve geleceğinizin
-            temsilidir.
+            İyi bir ofis markanızın temsilidir.
           </p>
           <span className="mx-auto mt-8 block h-1 w-14 rounded-full bg-brand" />
         </div>
