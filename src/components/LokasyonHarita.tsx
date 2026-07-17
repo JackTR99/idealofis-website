@@ -317,11 +317,12 @@ export default function LokasyonHarita({
       {/* Google atıf katmanı — SAHNEYE değil KARTA sabit: hiçbir kadrajda kırpılmaz
           (hukuki şart, Kaan kararı). Doku bantsız türev olduğu için çift bant oluşmaz.
           Görünürlüğü sahneyle birebir aynı kurala bağlı (anasayfada fotoğrafın üstüne binmesin).
-          Sağ/alt pay (pr-2.5 pb-2) soldan bilerek geniş: anasayfa kartının ~28px köşe
-          yayında "Terms"in ucu yaya değmesin (pr-2/pb-1.5 ile ucu ~1-2px değiyordu). */}
+          Sağ/alt pay (pr-3 pb-2.5) soldan bilerek geniş: anasayfa kartının ~28px köşe
+          yayında "Terms"in ucu yaya değmesin (pr-2/pb-1.5 ile ~1-2px, pr-2.5/pb-2 ile hâlâ
+          ~1-2px değiyordu; pr-3/pb-2.5 ile ~2px daha açıldı). */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-3 pb-2 pl-1.5 pr-2.5 transition-opacity duration-700 ${acilirOpaklik}`}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-3 pb-2.5 pl-1.5 pr-3 transition-opacity duration-700 ${acilirOpaklik}`}
       >
         <img src="/images/why/google-atif.png" alt="" className="h-4 w-auto" />
         <p className="text-[9px] leading-none text-[#5f6368] [text-shadow:0_0_2px_#fff,0_0_2px_#fff,0_0_3px_#fff]">
